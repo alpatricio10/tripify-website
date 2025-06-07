@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tripify - AI-Powered Travel Planning for Students</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            color: #333;
+            line-height: 1.6;
+        }
+        .header {
+            background-color: #f3f2ec;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            width: calc(100% - 60px);
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            margin-right: 20px;
+        }
+        .nav-links a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+        .nav-links a:hover {
+            color: #00473e;
+        }
+        .header img {
+            width: 120px;
+            height: auto;
+            transition: opacity 0.3s ease;
+        }
+        .header img:hover {
+            opacity: 0.8;
+        }
+        .hero {
+            margin-top: 80px;
+            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('{{ url_for('static', filename='images/back_ground.png') }}');
+            background-size: cover;
+            background-position: center;
+            padding: 180px 20px 100px;
+            text-align: center;
+            color: white;
+        }
+        .hero h1 {
+            font-size: clamp(32px, 5vw, 64px);
+            margin-bottom: 20px;
+        }
+        .hero p {
+            font-size: clamp(18px, 2vw, 24px);
+            max-width: 800px;
+            margin: 0 auto 30px;
+        }
+        .price-tag {
+            background: #00473e;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 30px;
+            display: block;
+            font-weight: 600;
+            margin: 20px auto;
+            max-width: 400px;
+        }
+        .features {
+            padding: 80px 20px;
+            background-color: #f8f9fa;
+        }
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        .feature-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+        .feature-card img {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+        }
+        .cta-section {
+            text-align: center;
+            padding: 80px 20px;
+            background: linear-gradient(135deg, #00473e 0%, #076e5b 100%);
+            color: white;
+        }
+        .cta-button {
+            padding: 15px 40px;
+            background-color: #ffffff;
+            color: #00473e;
+            border: none;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 18px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 20px;
+        }
+        .cta-button:hover {
+            transform: scale(1.05);
+        }
+        .testimonials {
+            padding: 80px 20px;
+            background-color: #ffffff;
+        }
+        .testimonial-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .testimonial-card {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .testimonial-card img {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .testimonial-card h4 {
+            margin: 0 0 15px 0;
+            color: #00473e;
+            font-size: 1.2em;
+        }
+        .testimonial-card p {
+            text-align: center;
+            line-height: 1.6;
+        }
+        .footer {
+            background-color: #00473e;
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+        }
+        .social-links {
+            margin-top: 20px;
+        }
+        .social-links a {
+            color: white;
+            margin: 0 10px;
+            text-decoration: none;
+        }
+        .pricing-text {
+            font-size: 1.8em;
+            font-weight: 600;
+            color: #00473e;
+            text-align: center;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin: 20px 0;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .pricing-text .highlight {
+            color: #28a745;
+            font-weight: 700;
+        }
+        .cta-section p {
+            color: white;
+            margin-bottom: 20px;
+        }
+        .chat-support {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #00473e;
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 1000;
+        }
+        .chat-support:hover {
+            transform: translateY(-2px);
+            background: #076e5b;
+        }
+        .chat-support i {
+            font-size: 20px;
+        }
+        .chat-window {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            width: 350px;
+            height: 500px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            display: none;
+            flex-direction: column;
+            z-index: 1000;
+        }
+        .chat-header {
+            background: #00473e;
+            color: white;
+            padding: 15px;
+            border-radius: 15px 15px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .chat-header h3 {
+            margin: 0;
+            font-size: 16px;
+        }
+        .close-chat {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 20px;
+        }
+        .chat-messages {
+            flex-grow: 1;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .message {
+            max-width: 80%;
+            padding: 10px 15px;
+            border-radius: 15px;
+            margin: 5px 0;
+        }
+        .user-message {
+            background: #e9ecef;
+            align-self: flex-end;
+            border-bottom-right-radius: 5px;
+        }
+        .bot-message {
+            background: #00473e;
+            color: white;
+            align-self: flex-start;
+            border-bottom-left-radius: 5px;
+        }
+        .chat-input {
+            padding: 15px;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            gap: 10px;
+        }
+        .chat-input input {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #e9ecef;
+            border-radius: 20px;
+            outline: none;
+        }
+        .chat-input button {
+            background: #00473e;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+        .chat-input button:hover {
+            background: #076e5b;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="{{ url_for('home') }}">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Tripify Logo" width="120">
+        </a>
+        <div class="nav-links">
+            <a href="#features">Features</a>
+            <a href="#testimonials">Testimonials</a>
+            <a href="{{ url_for('itineraries') }}">Itineraries</a>
+        </div>
+    </div>
+
+    <div class="hero">
+        <h1>Your Perfect Eurotrip,<br>Planned in Minutes</h1>
+        <p>Why struggle with multiple sites? Tripify gives you personalized itineraries based on your budget, AI-driven recommendations and complete trip bookings—all in one place</p>
+        <div class="pricing-text">
+            Save <span class="highlight">20+ hours</span> of planning for just <span class="highlight">€5</span>
+        </div>
+        <div style="margin-top: 30px;">
+            <a href="{{ url_for('booking') }}" class="cta-button">Start Your Journey</a>
+        </div>
+    </div>
+
+    <div class="features" id="features">
+        <div class="features-grid">
+            <div class="feature-card">
+                <img src="{{ url_for('static', filename='images/photo1.png') }}" alt="AI Planning">
+                <h3>AI-Powered Planning</h3>
+                <p>Our AI picks the best rooms, flights, and experiences matching your preferences</p>
+            </div>
+            <div class="feature-card">
+                <img src="{{ url_for('static', filename='images/photo2.png') }}" alt="Personalized Itinerary">
+                <h3>Tailored Itineraries</h3>
+                <p>Minute-by-minute plans crafted to your travel style and pace</p>
+            </div>
+            <div class="feature-card">
+                <img src="{{ url_for('static', filename='images/photo3.png') }}" alt="Local Expertise">
+                <h3>Local Insights</h3>
+                <p>Expert tips on weather, festivities, and hidden gems</p>
+            </div>
+            <div class="feature-card">
+                <img src="{{ url_for('static', filename='images/photo4.png') }}" alt="One-Click Booking">
+                <h3>Easy Booking</h3>
+                <p>Book everything in one click and modify on the go</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="testimonials" id="testimonials">
+        <div class="testimonial-grid">
+            <div class="testimonial-card">
+                <img src="{{ url_for('static', filename='images/nima.jpg') }}" alt="Nima">
+                <h4>Nima, 22</h4>
+                <p>"Tripify made my Barcelona trip unforgettable! The local recommendations were spot-on, and I discovered amazing tapas places I never would have found on my own. The student discount was a huge plus!"</p>
+            </div>
+            <div class="testimonial-card">
+                <img src="{{ url_for('static', filename='images/lianji.jpg') }}" alt="Jet Li">
+                <h4>Jet Li, 23</h4>
+                <p>"As an international student, planning trips in Europe was always overwhelming. Tripify simplified everything - from finding the best hostels to discovering hidden gems in Rome. The AI suggestions were incredibly accurate!"</p>
+            </div>
+            <div class="testimonial-card">
+                <img src="{{ url_for('static', filename='images/adrian.jpg') }}" alt="Adrian">
+                <h4>Adrian, 26</h4>
+                <p>"The personalized itinerary feature is a game-changer! I saved so much time not having to research each city. The app suggested the perfect mix of tourist spots and local experiences in Paris. Highly recommend!"</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="cta-section" id="pricing">
+        <h2>Ready to Plan Your Adventure?</h2>
+        <p>Get your entire trip organized in minutes</p>
+        <a href="{{ url_for('booking') }}" class="cta-button">Start Planning Now</a>
+    </div>
+
+    <button class="chat-support" onclick="toggleChat()">
+        <i class="fas fa-comments"></i>
+        Chat with Us
+    </button>
+
+    <div class="chat-window" id="chatWindow">
+        <div class="chat-header">
+            <h3>Tripify Assistant</h3>
+            <button class="close-chat" onclick="toggleChat()">×</button>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+            <div class="message bot-message">
+                Hello! I'm your Tripify assistant. How can I help you plan your trip today?
+            </div>
+        </div>
+        <div class="chat-input">
+            <input type="text" id="chatInput" placeholder="Type your message..." onkeypress="handleKeyPress(event)">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Contact: tripify.vbp@gmail.com</p>
+        <p>Barcelona, Spain</p>
+        <div class="social-links">
+            <a href="#">Instagram</a>
+            <a href="#">Facebook</a>
+            <a href="#">Twitter</a>
+        </div>
+    </div>
+
+    <script>
+        function toggleChat() {
+            const chatWindow = document.getElementById('chatWindow');
+            chatWindow.style.display = chatWindow.style.display === 'none' ? 'flex' : 'none';
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            
+            if (message) {
+                addMessage(message, 'user');
+                input.value = '';
+                
+                // Simulate bot response
+                setTimeout(() => {
+                    const response = getBotResponse(message);
+                    addMessage(response, 'bot');
+                }, 500);
+            }
+        }
+
+        function addMessage(text, sender) {
+            const messagesDiv = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}-message`;
+            messageDiv.textContent = text;
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function getBotResponse(message) {
+            const lowerMessage = message.toLowerCase();
+            
+            if (lowerMessage.includes('price') || lowerMessage.includes('cost')) {
+                return "Our service costs €5 and can save you 20+ hours of planning time!";
+            }
+            else if (lowerMessage.includes('student') || lowerMessage.includes('discount')) {
+                return "Yes! We offer a 20% student discount. You can apply it during the booking process.";
+            }
+            else if (lowerMessage.includes('cities') || lowerMessage.includes('destinations')) {
+                return "We currently support Rome, Madrid, Barcelona, and Paris. More cities coming soon!";
+            }
+            else if (lowerMessage.includes('time') || lowerMessage.includes('duration')) {
+                return "You can plan your entire trip in just a few minutes using our platform.";
+            }
+            else if (lowerMessage.includes('help') || lowerMessage.includes('support')) {
+                return "I can help you with pricing, student discounts, available cities, and general trip planning questions. What would you like to know?";
+            }
+            else {
+                return "I can help you with pricing, student discounts, available cities, and general trip planning questions. What would you like to know?";
+            }
+        }
+    </script>
+</body>
+</html>

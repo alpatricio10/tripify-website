@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tripify - Community Itineraries</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            color: #333;
+            line-height: 1.6;
+            background-color: #f8f9fa;
+        }
+        .header {
+            background-color: #f3f2ec;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            width: calc(100% - 60px);
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+        .nav-links a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+        .nav-links a:hover {
+            color: #00473e;
+        }
+        .main-container {
+            max-width: 1200px;
+            margin: 100px auto 40px;
+            padding: 20px;
+        }
+        .page-title {
+            text-align: center;
+            color: #00473e;
+            margin-bottom: 40px;
+        }
+        .city-selector {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .city-selector select {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: 2px solid #00473e;
+            border-radius: 8px;
+            background-color: white;
+            cursor: pointer;
+            min-width: 200px;
+        }
+        .itinerary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        .itinerary-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .itinerary-card:hover {
+            transform: translateY(-5px);
+        }
+        .itinerary-header {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 15px;
+            padding-top: 30px; /* Add space for the badge */
+        }
+        .itinerary-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #00473e;
+            margin: 0;
+            line-height: 1.4;
+            word-wrap: break-word;
+            max-width: 100%;
+        }
+        .itinerary-meta {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+        }
+        .itinerary-content {
+            margin-bottom: 20px;
+        }
+        .itinerary-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+        .vote-button {
+            background: none;
+            border: none;
+            color: #00473e;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+            padding: 5px 10px;
+            border-radius: 20px;
+        }
+        .vote-button:hover {
+            background: #f0f0f0;
+        }
+        .vote-count {
+            font-weight: 600;
+            color: #00473e;
+        }
+        .add-itinerary {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-top: 40px;
+        }
+        .add-itinerary h2 {
+            color: #00473e;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 16px;
+        }
+        .form-group textarea {
+            height: 150px;
+            resize: vertical;
+        }
+        .submit-button {
+            background: #00473e;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .submit-button:hover {
+            background: #076e5b;
+        }
+        .footer {
+            background-color: #00473e;
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+            margin-top: 60px;
+        }
+        .categories {
+            margin-top: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .category-tag {
+            background: #e8f5e9;
+            color: #00473e;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+        .itinerary-content p {
+            white-space: pre-line;
+            margin-bottom: 15px;
+        }
+        .author-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .author-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .author-name {
+            color: #666;
+            font-size: 0.9em;
+        }
+        .daily-plans {
+            margin-top: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+        }
+        .day-plan {
+            margin-bottom: 15px;
+        }
+        .day-plan:last-child {
+            margin-bottom: 0;
+        }
+        .day-plan h4 {
+            color: #00473e;
+            margin-bottom: 10px;
+        }
+        .day-plan ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .day-plan li {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .day-plan li:last-child {
+            border-bottom: none;
+        }
+        .time {
+            color: #666;
+            font-size: 0.9em;
+        }
+        .cost {
+            color: #28a745;
+            font-weight: 600;
+        }
+        .interaction-stats {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .comments-count {
+            color: #666;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .cost-summary {
+            color: #00473e;
+            font-weight: 600;
+        }
+        .vote-button.liked {
+            color: #dc3545;
+        }
+        .vote-button.liked i {
+            color: #dc3545;
+        }
+        .date-inputs {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .date-inputs input {
+            flex: 1;
+        }
+        .day-plan-input {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        .day-plan-input h4 {
+            color: #00473e;
+            margin-bottom: 10px;
+        }
+        .activities {
+            margin-bottom: 10px;
+        }
+        .activity-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .activity-input input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .activity-time {
+            width: 120px;
+        }
+        .activity-event {
+            flex: 1;
+        }
+        .activity-cost {
+            width: 100px;
+        }
+        .add-activity-btn, .add-day-btn {
+            background: #00473e;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background-color 0.3s ease;
+        }
+        .add-activity-btn:hover, .add-day-btn:hover {
+            background: #076e5b;
+        }
+        .remove-activity-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background-color 0.3s ease;
+        }
+        .remove-activity-btn:hover {
+            background: #c82333;
+        }
+        .activity-details {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .activity-time-location {
+            display: flex;
+            gap: 10px;
+        }
+        .activity-time-location input {
+            flex: 1;
+        }
+        .activity-meta {
+            display: flex;
+            gap: 10px;
+        }
+        .activity-description {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            resize: vertical;
+        }
+        .activity-item {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .activity-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .activity-main {
+            margin-bottom: 10px;
+        }
+        .activity-main h5 {
+            color: #00473e;
+            margin-bottom: 5px;
+        }
+        .location {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+        .description {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+        .activity-footer {
+            display: flex;
+            justify-content: flex-end;
+        }
+        .duration {
+            color: #666;
+            font-size: 0.9em;
+        }
+        .time, .duration {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .time i, .duration i {
+            color: #00473e;
+        }
+        
+        /* New styles for personalized recommendations */
+        .recommendations-section {
+            margin-top: 40px;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .filter-section {
+            display: none;
+        }
+        
+        .user-preferences {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .preferences-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .preference-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .preference-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .city-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .city-tag {
+            background: #e9ecef;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .city-tag.selected {
+            background: #00473e;
+            color: white;
+        }
+        
+        .recommendation-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #28a745;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            font-weight: 500;
+        }
+        
+        .budget-slider, .days-slider {
+            padding: 20px 10px;
+        }
+        
+        .budget-slider input[type="range"],
+        .days-slider input[type="range"] {
+            width: 100%;
+            margin: 10px 0;
+        }
+        
+        #budgetValue, #daysValue {
+            text-align: center;
+            font-weight: 600;
+            color: #00473e;
+        }
+
+        /* New styles for the filter message */
+        .filter-message {
+            background: #fff3cd;
+            color: #856404;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .highlight-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #28a745;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 15px;
+            font-size: 0.9em;
+            font-weight: 500;
+            z-index: 1;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .itinerary-card.highlighted {
+            border: 2px solid #28a745;
+            transform: scale(1.02);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+
+        .itinerary-card.highlighted:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="{{ url_for('home') }}">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Tripify Logo" width="120">
+        </a>
+        <div class="nav-links">
+            <a href="{{ url_for('home') }}">Home</a>
+            <a href="{{ url_for('home') }}#features">Features</a>
+            <a href="{{ url_for('home') }}#testimonials">Testimonials</a>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <h1 class="page-title">Community Itineraries</h1>
+
+        <!-- User Preferences Section -->
+        <div class="user-preferences">
+            <h2>Your Travel Preferences</h2>
+            <div class="preferences-grid">
+                <div class="preference-card">
+                    <h3>Favorite Cities</h3>
+                    <div class="city-tags" id="favoriteCities">
+                        <!-- Cities will be populated dynamically -->
+                    </div>
+                </div>
+                <div class="preference-card">
+                    <h3>Budget Range</h3>
+                    <div class="budget-slider">
+                        <input type="range" id="budgetRange" min="0" max="5000" step="100" value="2000">
+                        <div id="budgetValue">€2000</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recommendations Section -->
+        <div class="recommendations-section">
+            <h2>Personalized Recommendations</h2>
+            <div id="recommendationsList" class="itinerary-grid">
+                <!-- Recommendations will be populated dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Contact: tripify.vbp@gmail.com</p>
+        <p>Barcelona, Spain</p>
+    </div>
+
+    <script>
+        // Load user preferences and recommendations
+        async function loadUserPreferences() {
+            try {
+                const response = await fetch('/api/v1/users/current/preferences');
+                const preferences = await response.json();
+                
+                // Populate favorite cities
+                const favoriteCitiesContainer = document.getElementById('favoriteCities');
+                const cities = await fetch('/api/v1/cities/popular').then(r => r.json());
+                
+                // Clear existing cities
+                favoriteCitiesContainer.innerHTML = '';
+                
+                // Sort cities to show selected ones first
+                const sortedCities = cities.sort((a, b) => {
+                    const aSelected = preferences.favorite_cities?.includes(a.id);
+                    const bSelected = preferences.favorite_cities?.includes(b.id);
+                    if (aSelected && !bSelected) return -1;
+                    if (!aSelected && bSelected) return 1;
+                    return 0;
+                });
+                
+                sortedCities.forEach(city => {
+                    const tag = document.createElement('div');
+                    tag.className = `city-tag ${preferences.favorite_cities?.includes(city.id) ? 'selected' : ''}`;
+                    tag.textContent = city.name;
+                    tag.dataset.cityId = city.id;
+                    tag.onclick = () => toggleFavoriteCity(city.id, tag);
+                    favoriteCitiesContainer.appendChild(tag);
+                });
+                
+                // Set budget
+                if (preferences.budget) {
+                    document.getElementById('budgetRange').value = preferences.budget;
+                    document.getElementById('budgetValue').textContent = `€${preferences.budget}`;
+                }
+                
+                // Load recommendations
+                loadRecommendations();
+            } catch (error) {
+                console.error('Error loading preferences:', error);
+                // If there's an error, still load cities and show default recommendations
+                const favoriteCitiesContainer = document.getElementById('favoriteCities');
+                const cities = await fetch('/api/v1/cities/popular').then(r => r.json());
+                
+                // Clear existing cities
+                favoriteCitiesContainer.innerHTML = '';
+                
+                cities.forEach(city => {
+                    const tag = document.createElement('div');
+                    tag.className = 'city-tag';
+                    tag.textContent = city.name;
+                    tag.dataset.cityId = city.id;
+                    tag.onclick = () => toggleFavoriteCity(city.id, tag);
+                    favoriteCitiesContainer.appendChild(tag);
+                });
+                
+                // Load default recommendations
+                loadRecommendations(true);
+            }
+        }
+        
+        // Toggle favorite city
+        async function toggleFavoriteCity(cityId, element) {
+            try {
+                // Toggle the visual state immediately for better UX
+                element.classList.toggle('selected');
+                
+                // Get all selected cities
+                const selectedCities = Array.from(document.querySelectorAll('.city-tag.selected'))
+                    .map(tag => tag.dataset.cityId);
+                
+                // Update preferences in Neo4j
+                const response = await fetch('/api/v1/users/current/preferences', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        favorite_cities: selectedCities,
+                        budget: document.getElementById('budgetRange').value
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to update preferences');
+                }
+                
+                // Reload recommendations with the new preferences
+                loadRecommendations();
+            } catch (error) {
+                console.error('Error updating preferences:', error);
+                // Revert the visual state if there was an error
+                element.classList.toggle('selected');
+                alert('Failed to update favorite cities. Please try again.');
+            }
+        }
+        
+        // Load recommendations
+        async function loadRecommendations(isDefault = false) {
+            try {
+                const budget = parseInt(document.getElementById('budgetRange').value);
+                
+                let response;
+                if (isDefault) {
+                    response = await fetch('/api/v1/itineraries/recommended?user_id=default_user');
+                } else {
+                    response = await fetch('/api/v1/itineraries/recommended');
+                }
+                
+                const allItineraries = await response.json();
+                const container = document.getElementById('recommendationsList');
+                container.innerHTML = '';
+                
+                if (allItineraries.length === 0) {
+                    container.innerHTML = '<p class="no-itineraries">No recommendations found. Try selecting some favorite cities!</p>';
+                    return;
+                }
+
+                // Filter and sort itineraries
+                const filteredItineraries = allItineraries
+                    .map(itinerary => {
+                        // Extract numeric values from costs
+                        const cost = parseInt(itinerary.post.total_cost?.replace(/[^0-9]/g, '') || '0');
+                        
+                        // Calculate relevance score
+                        let score = 0;
+                        if (cost <= budget) score += 1;
+                        
+                        return {
+                            ...itinerary,
+                            relevance_score: score,
+                            cost
+                        };
+                    })
+                    .sort((a, b) => {
+                        // First sort by relevance score
+                        if (b.relevance_score !== a.relevance_score) {
+                            return b.relevance_score - a.relevance_score;
+                        }
+                        // Then by cost (lower is better)
+                        return a.cost - b.cost;
+                    });
+
+                // Take top 10 itineraries
+                const topItineraries = filteredItineraries.slice(0, 10);
+                
+                // If we have less than 10 itineraries, add more from the same cities
+                if (topItineraries.length < 10) {
+                    const cityIds = new Set(topItineraries.map(i => i.city.id));
+                    const additionalItineraries = filteredItineraries
+                        .filter(i => !cityIds.has(i.city.id))
+                        .slice(0, 10 - topItineraries.length);
+                    
+                    topItineraries.push(...additionalItineraries);
+                }
+
+                // Display the itineraries
+                topItineraries.forEach((itinerary, index) => {
+                    // Only highlight if there are exact matches
+                    const isHighlighted = index === 0 && filteredItineraries.some(i => i.relevance_score === 1);
+                    const card = createItineraryCard(itinerary, isHighlighted);
+                    container.appendChild(card);
+                });
+
+                // Add a message if no exact matches were found
+                if (filteredItineraries.filter(i => i.relevance_score === 1).length === 0) {
+                    const message = document.createElement('div');
+                    message.className = 'filter-message';
+                    message.innerHTML = `
+                        <p>No exact matches found for your budget preferences. 
+                        Showing the closest matches instead.</p>
+                    `;
+                    container.insertBefore(message, container.firstChild);
+                }
+            } catch (error) {
+                console.error('Error loading recommendations:', error);
+                const container = document.getElementById('recommendationsList');
+                container.innerHTML = '<p class="error-message">Error loading recommendations. Please try again later.</p>';
+            }
+        }
+        
+        // Create itinerary card
+        function createItineraryCard(itinerary, isHighlighted = false) {
+            const card = document.createElement('div');
+            card.className = `itinerary-card ${isHighlighted ? 'highlighted' : ''}`;
+            
+            // Helper function to safely get nested values
+            const safeGet = (obj, path, defaultValue = '') => {
+                return path.split('.').reduce((acc, part) => (acc && acc[part] !== undefined ? acc[part] : defaultValue), obj);
+            };
+
+            // Build meta items only if they have values
+            const metaItems = [];
+            if (safeGet(itinerary, 'city.name')) {
+                metaItems.push(`<span><i class="fas fa-map-marker-alt"></i> ${safeGet(itinerary, 'city.name')}</span>`);
+            }
+            if (safeGet(itinerary, 'post.duration')) {
+                metaItems.push(`<span><i class="fas fa-clock"></i> ${safeGet(itinerary, 'post.duration')} days</span>`);
+            }
+            if (safeGet(itinerary, 'post.total_cost')) {
+                metaItems.push(`<span><i class="fas fa-euro-sign"></i> ${safeGet(itinerary, 'post.total_cost')}</span>`);
+            }
+
+            // Build author info only if it exists
+            const authorInfo = safeGet(itinerary, 'post.author_name') ? `
+                <div class="author-info">
+                    <img src="${safeGet(itinerary, 'post.author_avatar', '/static/images/default-avatar.png')}" 
+                         alt="Author" class="author-avatar">
+                    <span class="author-name">${safeGet(itinerary, 'post.author_name')}</span>
+                </div>
+            ` : '';
+
+            // Build activities section only if there are activities
+            const activitiesSection = itinerary.activities && itinerary.activities.length > 0 ? `
+                <div class="daily-plans">
+                    ${itinerary.activities.map(activity => `
+                        <div class="day-plan">
+                            <h4>${safeGet(activity, 'name')}</h4>
+                            <ul>
+                                <li>
+                                    ${safeGet(activity, 'time') ? `<span class="time">${safeGet(activity, 'time')}</span>` : ''}
+                                    ${safeGet(activity, 'cost') ? `<span class="cost">€${safeGet(activity, 'cost')}</span>` : ''}
+                                </li>
+                            </ul>
+                        </div>
+                    `).join('')}
+                </div>
+            ` : '';
+
+            // Build categories section only if there's a travel style
+            const categoriesSection = safeGet(itinerary, 'post.travel_style') ? `
+                <div class="categories">
+                    <span class="category-tag">${safeGet(itinerary, 'post.travel_style')}</span>
+                </div>
+            ` : '';
+
+            const isLiked = itinerary.is_liked || safeGet(itinerary, 'post.liked', false);
+            const likedClass = isLiked ? 'liked' : '';
+
+            card.innerHTML = `
+                ${isHighlighted ? '<div class="highlight-badge">Recommended for You</div>' : ''}
+                <div class="itinerary-header">
+                    <h3 class="itinerary-title">${safeGet(itinerary, 'post.title', 'Untitled Itinerary')}</h3>
+                    ${metaItems.length > 0 ? `<div class="itinerary-meta">${metaItems.join('')}</div>` : ''}
+                </div>
+                <div class="itinerary-content">
+                    ${safeGet(itinerary, 'post.description') ? `<p>${safeGet(itinerary, 'post.description')}</p>` : ''}
+                    ${categoriesSection}
+                </div>
+                ${activitiesSection}
+                ${authorInfo}
+                <div class="itinerary-stats">
+                    <button class="vote-button ${likedClass}" 
+                            onclick="voteItinerary('${safeGet(itinerary, 'post.id')}')"
+                            data-itinerary-id="${safeGet(itinerary, 'post.id')}">
+                        <i class="fas fa-heart"></i>
+                        <span class="vote-count">${safeGet(itinerary, 'post.votes', '0')}</span>
+                    </button>
+                </div>
+            `;
+            
+            return card;
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadUserPreferences();
+        });
+
+        // Add this new function to load itineraries
+        async function loadItineraries() {
+            try {
+                const response = await fetch('/api/v1/itineraries/recommended');
+                const itineraries = await response.json();
+                const container = document.getElementById('itineraryList');
+                container.innerHTML = '';
+                
+                if (itineraries.length === 0) {
+                    container.innerHTML = '<p class="no-itineraries">No itineraries found. Be the first to share your travel experience!</p>';
+                    return;
+                }
+                
+                itineraries.forEach(itinerary => {
+                    const card = createItineraryCard(itinerary);
+                    container.appendChild(card);
+                });
+            } catch (error) {
+                console.error('Error loading itineraries:', error);
+                const container = document.getElementById('itineraryList');
+                container.innerHTML = '<p class="error-message">Error loading itineraries. Please try again later.</p>';
+            }
+        }
+
+        // Function to get user preferences
+        async function getUserPreferences() {
+            try {
+                const response = await fetch('/api/v1/users/current/preferences');
+                if (!response.ok) {
+                    throw new Error('Failed to get user preferences');
+                }
+                const preferences = await response.json();
+                return preferences;
+            } catch (error) {
+                console.error('Error getting user preferences:', error);
+                return null;
+            }
+        }
+
+        // Function to get popular cities
+        async function getPopularCities() {
+            try {
+                const response = await fetch('/api/v1/cities/popular');
+                if (!response.ok) {
+                    throw new Error('Failed to get popular cities');
+                }
+                const cities = await response.json();
+                return cities;
+            } catch (error) {
+                console.error('Error getting popular cities:', error);
+                return [];
+            }
+        }
+
+        // Function to update user preferences
+        async function updateUserPreferences(preferences) {
+            try {
+                const response = await fetch('/api/v1/users/current/preferences', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(preferences)
+                });
+                if (!response.ok) {
+                    throw new Error('Failed to update user preferences');
+                }
+                return true;
+            } catch (error) {
+                console.error('Error updating user preferences:', error);
+                return false;
+            }
+        }
+
+        // Function to get recommended itineraries
+        async function getRecommendedItineraries(params = {}) {
+            try {
+                const queryString = new URLSearchParams(params).toString();
+                const response = await fetch(`/api/v1/itineraries/recommended?${queryString}`);
+                if (!response.ok) {
+                    throw new Error('Failed to get recommended itineraries');
+                }
+                const itineraries = await response.json();
+                return itineraries;
+            } catch (error) {
+                console.error('Error getting recommended itineraries:', error);
+                return [];
+            }
+        }
+
+        // Add budget change handler
+        document.getElementById('budgetRange').addEventListener('input', async (e) => {
+            const budget = e.target.value;
+            document.getElementById('budgetValue').textContent = `€${budget}`;
+            
+            try {
+                // Get current selected cities
+                const selectedCities = Array.from(document.querySelectorAll('.city-tag.selected'))
+                    .map(tag => tag.dataset.cityId);
+                
+                // Update preferences in the backend
+                const response = await fetch('/api/v1/users/current/preferences', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        favorite_cities: selectedCities,
+                        budget: parseInt(budget)
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to update preferences');
+                }
+
+                // Immediately reload recommendations with the new budget
+                const recommendationsResponse = await fetch('/api/v1/itineraries/recommended');
+                const allItineraries = await recommendationsResponse.json();
+                
+                const container = document.getElementById('recommendationsList');
+                container.innerHTML = '';
+
+                // Filter and sort itineraries based on new budget
+                const filteredItineraries = allItineraries
+                    .map(itinerary => {
+                        const cost = parseInt(itinerary.post.total_cost?.replace(/[^0-9]/g, '') || '0');
+                        let score = 0;
+                        if (cost <= parseInt(budget)) score += 1;
+                        
+                        return {
+                            ...itinerary,
+                            relevance_score: score,
+                            cost
+                        };
+                    })
+                    .sort((a, b) => {
+                        if (b.relevance_score !== a.relevance_score) {
+                            return b.relevance_score - a.relevance_score;
+                        }
+                        return a.cost - b.cost;
+                    });
+
+                // Take top 10 itineraries
+                const topItineraries = filteredItineraries.slice(0, 10);
+                
+                // If we have less than 10 itineraries, add more from the same cities
+                if (topItineraries.length < 10) {
+                    const cityIds = new Set(topItineraries.map(i => i.city.id));
+                    const additionalItineraries = filteredItineraries
+                        .filter(i => !cityIds.has(i.city.id))
+                        .slice(0, 10 - topItineraries.length);
+                    
+                    topItineraries.push(...additionalItineraries);
+                }
+
+                // Display the itineraries
+                topItineraries.forEach((itinerary, index) => {
+                    const isHighlighted = index === 0 && filteredItineraries.some(i => i.relevance_score === 1);
+                    const card = createItineraryCard(itinerary, isHighlighted);
+                    container.appendChild(card);
+                });
+
+                // Add a message if no exact matches were found
+                if (filteredItineraries.filter(i => i.relevance_score === 1).length === 0) {
+                    const message = document.createElement('div');
+                    message.className = 'filter-message';
+                    message.innerHTML = `
+                        <p>No exact matches found for your budget preferences. 
+                        Showing the closest matches instead.</p>
+                    `;
+                    container.insertBefore(message, container.firstChild);
+                }
+            } catch (error) {
+                console.error('Error updating budget:', error);
+                alert('Failed to update recommendations. Please try again.');
+            }
+        });
+
+        // Add like functionality
+        async function voteItinerary(itineraryId) {
+            try {
+                const response = await fetch(`/api/v1/itineraries/${itineraryId}/like`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    // Update all instances of this itinerary's vote button
+                    const voteButtons = document.querySelectorAll(`[data-itinerary-id="${itineraryId}"]`);
+                    voteButtons.forEach(button => {
+                        const voteCount = button.querySelector('.vote-count');
+                        voteCount.textContent = result.votes;
+                        button.classList.toggle('liked', result.liked);
+                    });
+                } else {
+                    console.error('Failed to like itinerary');
+                }
+            } catch (error) {
+                console.error('Error voting for itinerary:', error);
+            }
+        }
+    </script>
+</body>
+</html> 

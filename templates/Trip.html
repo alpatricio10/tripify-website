@@ -1,0 +1,1833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Trip Plan - Tripify</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/plan.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-image: url("{{ url_for('static', filename='images/back_ground.png') }}");
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+        .header {
+            background-color: #f3f2ec;
+            padding: 15px 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-sizing: border-box;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+        .nav-links a {
+            color: #00473e;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1.1em;
+            transition: color 0.3s ease;
+            position: relative;
+        }
+        .nav-links a:hover {
+            color: #076e5b;
+        }
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -5px;
+            left: 0;
+            background-color: #00473e;
+            transition: width 0.3s ease;
+        }
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+        .trip-plan-container {
+            max-width: 1200px;
+            margin: 100px auto 40px;
+            padding: 20px;
+        }
+        .trip-plan-header {
+            text-align: center;
+            margin-bottom: 40px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(5px);
+        }
+        .trip-plan-header h1 {
+            color: white;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+        }
+        .trip-plan-header p {
+            color: white;
+            font-size: 1.1em;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+        }
+        .trip-details {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .trip-details h2 {
+            color: #00473e;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .trip-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .info-card {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            position: relative;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        .info-card:hover {
+            transform: translateY(-5px);
+        }
+        .info-card h3 {
+            color: #00473e;
+            margin-bottom: 15px;
+            font-size: 1.4em;
+            font-weight: 600;
+        }
+        .info-card p {
+            color: #333;
+            margin: 0;
+            font-size: 1.2em;
+            font-weight: 500;
+        }
+        .preferences-filter {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .preference-category {
+            margin-bottom: 20px;
+        }
+        .preference-category h4 {
+            color: #00473e;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+        .preference-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .preference-option {
+            background: #e9ecef;
+            padding: 8px 15px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        .preference-option.selected {
+            background: #28a745;
+            color: white;
+            border-color: #28a745;
+        }
+        .preference-option.selected i {
+            color: white;
+        }
+        .preference-option i {
+            color: #dc3545;
+            font-size: 0.9em;
+        }
+        .preference-option:hover {
+            transform: translateY(-2px);
+            border-color: #28a745;
+        }
+        .filter-button {
+            background: #00473e;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+        }
+        .filter-button:hover {
+            background: #076e5b;
+            transform: translateY(-2px);
+        }
+        .filter-button i {
+            font-size: 1.2em;
+        }
+        .recommendations-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .recommendations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .accommodation-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .accommodation-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        .accommodation-card:hover {
+            transform: translateY(-5px);
+        }
+        .accommodation-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+        .accommodation-details {
+            padding: 20px;
+        }
+        .accommodation-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #00473e;
+            margin-bottom: 10px;
+        }
+        .accommodation-price {
+            font-size: 20px;
+            font-weight: 700;
+            color: #00473e;
+            margin-bottom: 10px;
+        }
+        .accommodation-rating {
+            color: #ffc107;
+            margin-bottom: 10px;
+        }
+        .accommodation-amenities {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        .amenity-tag {
+            background: #f8f9fa;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            color: #666;
+        }
+        .book-now-btn {
+            background: #00473e;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            width: 100%;
+            margin-top: 15px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        .book-now-btn:hover {
+            background: #076e5b;
+        }
+        .itinerary-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .itinerary-day {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .itinerary-day h3 {
+            color: #00473e;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .itinerary-activity {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            transition: transform 0.2s ease;
+        }
+        .itinerary-activity:hover {
+            transform: translateX(5px);
+        }
+        .itinerary-activity i {
+            color: #00473e;
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+        .itinerary-activity .time {
+            color: #666;
+            margin-right: 15px;
+        }
+        .itinerary-activity .description {
+            flex-grow: 1;
+        }
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .section-header h2 {
+            margin: 0;
+        }
+        .price-summary-section {
+            background: linear-gradient(135deg, #00473e 0%, #076e5b 100%);
+            padding: 30px;
+            border-radius: 15px;
+            margin-top: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        .price-summary {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        .price-summary h4 {
+            color: #00473e;
+            margin-bottom: 20px;
+            font-size: 1.4em;
+            font-weight: 600;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 10px;
+        }
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 12px 0;
+            color: #333;
+            font-size: 1.1em;
+        }
+        .total-price {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 2px solid #e9ecef;
+            font-weight: bold;
+            font-size: 1.4em;
+            color: #00473e;
+        }
+        .payment-section {
+            text-align: center;
+            padding: 40px;
+            background: linear-gradient(135deg, #00473e 0%, #076e5b 100%);
+            border-radius: 15px;
+            margin-top: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        .payment-section h2 {
+            color: white;
+            margin-bottom: 20px;
+            font-size: 2em;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+        }
+        .payment-section p {
+            color: white;
+            margin-bottom: 30px;
+            font-size: 1.2em;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+        }
+        .book-button {
+            background: white;
+            color: #00473e;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 30px;
+            font-size: 1.2em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        .book-button:hover:not(:disabled) {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+        .book-button:disabled {
+            background: #e9ecef;
+            color: #6c757d;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        .success-message {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+        .success-modal {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 600px;
+            text-align: center;
+        }
+        .success-modal h2 {
+            color: #00473e;
+            margin-bottom: 20px;
+            font-size: 2em;
+        }
+        .success-modal p {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+        .success-modal .icon {
+            font-size: 60px;
+            color: #00473e;
+            margin-bottom: 20px;
+        }
+        .success-modal .home-button {
+            background: #00473e;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .success-modal .home-button:hover {
+            transform: scale(1.05);
+        }
+        .selection-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .selection-card h3 {
+            color: #00473e;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .options-scroll-container {
+            overflow-x: auto;
+            padding: 10px 0;
+            margin: 0 -20px;
+            padding: 0 20px;
+            scrollbar-width: thin;
+            scrollbar-color: #00473e #f8f9fa;
+        }
+        .options-scroll-container::-webkit-scrollbar {
+            height: 6px;
+        }
+        .options-scroll-container::-webkit-scrollbar-track {
+            background: #f8f9fa;
+            border-radius: 3px;
+        }
+        .options-scroll-container::-webkit-scrollbar-thumb {
+            background-color: #00473e;
+            border-radius: 3px;
+        }
+        .option-grid {
+            display: flex;
+            gap: 15px;
+            min-width: min-content;
+        }
+        .option-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            position: relative;
+            min-width: 250px;
+            flex: 0 0 auto;
+        }
+        .option-card.selected {
+            border-color: #28a745;
+            background: #e8f5e9;
+        }
+        .option-card:hover {
+            transform: translateY(-2px);
+            border-color: #28a745;
+        }
+        .option-card .check-icon {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: #28a745;
+            font-size: 1.2em;
+            display: none;
+        }
+        .option-card.selected .check-icon {
+            display: block;
+        }
+        .load-more-btn {
+            background: #00473e;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+            margin-left: 10px;
+        }
+        .load-more-btn:hover {
+            background: #076e5b;
+            transform: translateY(-2px);
+        }
+        .option-card h4 {
+            color: #00473e;
+            margin-bottom: 15px;
+            padding-right: 30px;
+        }
+        .option-card .price {
+            color: #28a745;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+        .option-card .details {
+            color: #666;
+            margin-top: 10px;
+            font-size: 0.9em;
+        }
+        .price-summary {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        .price-summary h4 {
+            color: #00473e;
+            margin-bottom: 10px;
+        }
+        .student-discount {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .student-discount:hover {
+            background: #dee2e6;
+        }
+        .student-discount i {
+            color: #00473e;
+            font-size: 20px;
+        }
+        .student-discount.active {
+            background: #00473e;
+            color: white;
+        }
+        .student-discount.active i {
+            color: white;
+        }
+        .verification-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .verification-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+        }
+        .verification-content h3 {
+            color: #00473e;
+            margin-bottom: 20px;
+        }
+        .verification-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .verification-form input {
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        .verification-form input:focus {
+            border-color: #00473e;
+            outline: none;
+        }
+        .verification-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .verification-buttons button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .verify-btn {
+            background: #00473e;
+            color: white;
+        }
+        .verify-btn:hover {
+            background: #076e5b;
+        }
+        .cancel-btn {
+            background: #e9ecef;
+            color: #333;
+        }
+        .cancel-btn:hover {
+            background: #dee2e6;
+        }
+        .save-preferences-btn {
+            background: #00473e;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+        .save-preferences-btn:hover {
+            background: #076e5b;
+            transform: translateY(-2px);
+        }
+        .selected-options {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .selected-options h5 {
+            color: #00473e;
+            margin-bottom: 10px;
+        }
+        .selected-tag {
+            display: inline-block;
+            background: #28a745;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            margin: 5px;
+            font-size: 0.9em;
+        }
+        .city-section {
+            margin-bottom: 0;
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            width: 100%;
+        }
+        .city-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        .city-header h4 {
+            color: #00473e;
+            font-size: 1.2em;
+            font-weight: 600;
+            margin: 0;
+        }
+        .options-container {
+            display: flex;
+            gap: 20px;
+            padding: 10px 0;
+            overflow-x: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #00473e #f8f9fa;
+            width: 100%;
+            flex-wrap: nowrap;
+            min-height: 200px;
+            margin: 0 -20px;
+            padding: 0 20px;
+        }
+        .options-container::-webkit-scrollbar {
+            height: 6px;
+        }
+        .options-container::-webkit-scrollbar-track {
+            background: #f8f9fa;
+            border-radius: 3px;
+        }
+        .options-container::-webkit-scrollbar-thumb {
+            background-color: #00473e;
+            border-radius: 3px;
+        }
+        .option-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            position: relative;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            min-width: 250px;
+            flex: 0 0 auto;
+        }
+        .option-card.selected {
+            border-color: #28a745;
+            background: #e8f5e9;
+        }
+        .option-card:hover {
+            transform: translateY(-2px);
+            border-color: #28a745;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .option-card h5 {
+            color: #00473e;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+        .option-card .price {
+            color: #28a745;
+            font-weight: 600;
+            font-size: 1.2em;
+            margin: 10px 0;
+        }
+        .option-card .details {
+            color: #666;
+            margin: 5px 0;
+            font-size: 0.9em;
+        }
+        .option-card .check-icon {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            color: #28a745;
+            font-size: 1.2em;
+            display: none;
+        }
+        .option-card.selected .check-icon {
+            display: block;
+        }
+        #transport-selection, #accommodation-selection {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+        .load-more-btn:disabled {
+            background: #00473e;
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .student-discount-container {
+            margin: 15px 0;
+            text-align: center;
+        }
+        .student-discount-btn {
+            background: #e9ecef;
+            color: #00473e;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 0 auto;
+        }
+        .student-discount-btn:hover {
+            background: #dee2e6;
+            transform: translateY(-2px);
+        }
+        .student-discount-btn i {
+            font-size: 20px;
+        }
+        .student-discount-btn.applied {
+            background: #00473e;
+            color: white;
+        }
+        .student-discount-btn.applied i {
+            color: white;
+        }
+        .discount-status {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #28a745;
+            display: none;
+        }
+        .generate-itinerary-button {
+            background: #00473e;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .generate-itinerary-button:hover {
+            background: #076e5b;
+        }
+        .loading-spinner {
+            display: none;
+            margin: 20px auto;
+            text-align: center;
+            color: #00473e;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        .loading-spinner i {
+            animation: spin 1s linear infinite;
+            font-size: 2em;
+            color: #00473e;
+        }
+        .loading-spinner p {
+            margin-top: 10px;
+            font-weight: 600;
+            color: #00473e;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .additional-tips {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        .additional-tips h3 {
+            color: #00473e;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+        .additional-tips ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .additional-tips li {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .additional-tips li:last-child {
+            border-bottom: none;
+        }
+        .additional-tips i {
+            color: #ffc107;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            <a href="{{ url_for('home') }}">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Tripify Logo" width="120">
+            </a>
+        </div>
+        <div class="nav-links">
+            <a href="{{ url_for('home') }}">Home</a>
+            <a href="{{ url_for('home') }}#testimonials">Testimonials</a>
+            <a href="{{ url_for('itineraries') }}">Itineraries</a>
+        </div>
+    </div>
+
+    <div class="trip-plan-container">
+        <div class="trip-plan-header">
+            <h1>Your Trip Plan</h1>
+            <p>Let's create your perfect itinerary</p>
+        </div>
+
+        <div class="trip-details">
+            <h2>Trip Details</h2>
+            <div class="trip-info">
+                <div class="info-card">
+                    <h3><i class="fas fa-map-marked-alt"></i> Destinations</h3>
+                    <p id="destinations">Loading...</p>
+                </div>
+                <div class="info-card">
+                    <h3><i class="fas fa-calendar-alt"></i> Travel Dates</h3>
+                    <p id="dates">Loading...</p>
+                </div>
+                <div class="info-card">
+                    <h3><i class="fas fa-euro-sign"></i> Budget</h3>
+                    <p id="budget">Loading...</p>
+                </div>
+            </div>
+
+            <div class="selected-options">
+                <h5>Selected Preferences:</h5>
+                <div id="selected-interests"></div>
+                <div id="selected-transport"></div>
+                <div id="selected-accommodation"></div>
+            </div>
+
+            <div class="section-header">
+                <h2>Your Preferences</h2>
+                <button class="filter-button" onclick="togglePreferences()">
+                    <i class="fas fa-filter"></i> Modify Preferences
+                </button>
+            </div>
+            <div id="preferences-filter" class="preferences-filter" style="display: none;">
+                <div class="preference-category">
+                    <h4>Interests</h4>
+                    <div id="interests-filter" class="preference-options">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+                <div class="preference-category">
+                    <h4>Transportation</h4>
+                    <div id="transport-filter" class="preference-options">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+                <div class="preference-category">
+                    <h4>Accommodation</h4>
+                    <div id="accommodation-filter" class="preference-options">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+                <button class="save-preferences-btn" onclick="savePreferences()">Save Preferences</button>
+            </div>
+        </div>
+
+        <div class="trip-details">
+            <div class="selection-card">
+                <h3>
+                    <span><i class="fas fa-train"></i> Transportation Options</span>
+                </h3>
+                <div id="transport-selection">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <div class="selection-card">
+                <h3>
+                    <span><i class="fas fa-bed"></i> Accommodation Options</span>
+                </h3>
+                <div id="accommodation-selection">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <div class="loading-spinner" id="loadingSpinner" style="display: none;">
+            <i class="fas fa-spinner fa-2x"></i>
+            <p>Generating your perfect itinerary...</p>
+        </div>
+
+        <div class="itinerary-section" id="itinerarySection">
+            <div class="section-header">
+                <h2>Your Itinerary</h2>
+                <button class="generate-itinerary-button" onclick="generateRAGItinerary()">
+                    <i class="fas fa-magic"></i>
+                    Generate Smart Itinerary
+                </button>
+            </div>
+            <div id="itinerary-container">
+                <!-- Will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <div class="price-summary-section">
+            <div class="price-summary">
+                <h4>Price Summary</h4>
+                <div id="price-breakdown">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+                <div class="total-price">
+                    Total: <span id="total-price">€0</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="payment-section">
+            <h2>Ready to Book Your Adventure?</h2>
+            <p>Secure your spot for just €5</p>
+            <button class="book-button" onclick="showSuccessMessage()">Book Now</button>
+        </div>
+    </div>
+
+    <div class="success-message" id="successMessage">
+        <div class="success-modal">
+            <div class="icon">🎉</div>
+            <h2>Booking Confirmed!</h2>
+            <p>Your Eurotrip adventure is now booked! We're excited to help you create unforgettable memories across Europe. You'll receive a detailed itinerary and booking confirmation via email shortly.</p>
+            <p>Get ready to explore new cultures, taste amazing food, and make lifelong memories. Your journey of a lifetime is about to begin!</p>
+            <a href="{{ url_for('home') }}" class="home-button">Return to Home</a>
+        </div>
+    </div>
+
+    <script>
+        // Function to handle option card selection
+        document.querySelectorAll('.option-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const section = this.closest('.selection-section');
+                section.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
+                this.classList.add('selected');
+                updatePriceSummary();
+            });
+        });
+
+        // Function to update price summary
+        function updatePriceSummary() {
+            try {
+                const priceBreakdown = document.getElementById('price-breakdown');
+                if (!priceBreakdown) return;
+
+                let total = 0;
+                let html = '';
+
+                // Get transport prices
+                const transportCards = document.querySelectorAll('#transport-selection .option-card.selected');
+                if (transportCards.length > 0) {
+                    let transportTotal = 0;
+                    transportCards.forEach(card => {
+                        transportTotal += parseInt(card.dataset.price) || 0;
+                    });
+                    total += transportTotal;
+                    html += `<div class="price-row">Transportation: <span>€${transportTotal}</span></div>`;
+                }
+
+                // Get accommodation prices
+                const accommodationCards = document.querySelectorAll('#accommodation-selection .option-card.selected');
+                if (accommodationCards.length > 0) {
+                    let accommodationTotal = 0;
+                    accommodationCards.forEach(card => {
+                        accommodationTotal += parseInt(card.dataset.price) || 0;
+                    });
+                    total += accommodationTotal;
+                    html += `<div class="price-row">Accommodation: <span>€${accommodationTotal}</span></div>`;
+                }
+
+                // Add service fee
+                const serviceFee = 5;
+                total += serviceFee;
+                html += `<div class="price-row">Service Fee: <span>€${serviceFee}</span></div>`;
+
+                // Apply student discount if active
+                const studentDiscount = document.querySelector('.student-discount.active');
+                if (studentDiscount) {
+                    const discount = total * 0.2;
+                    total = total * 0.8;
+                    html += `<div class="price-row student-discount-row">Student Discount (20%): <span>-€${discount.toFixed(2)}</span></div>`;
+                }
+
+                // Update the price breakdown
+                priceBreakdown.innerHTML = html;
+
+                // Update total price
+                const totalPriceElement = document.getElementById('total-price');
+                if (totalPriceElement) {
+                    totalPriceElement.textContent = `€${total.toFixed(2)}`;
+                }
+
+                console.log('Price Summary Updated:', {
+                    transportTotal: transportCards.length > 0 ? Array.from(transportCards).reduce((sum, card) => sum + (parseInt(card.dataset.price) || 0), 0) : 0,
+                    accommodationTotal: accommodationCards.length > 0 ? Array.from(accommodationCards).reduce((sum, card) => sum + (parseInt(card.dataset.price) || 0), 0) : 0,
+                    serviceFee,
+                    total
+                });
+            } catch (error) {
+                console.error('Error updating price summary:', error);
+            }
+        }
+
+        // Function to toggle student discount
+        function toggleStudentDiscount() {
+            const studentDiscount = document.querySelector('.student-discount');
+            studentDiscount.classList.toggle('active');
+            updatePriceSummary();
+        }
+
+        // Function to display stored preferences
+        function displayStoredPreferences() {
+            const preferences = JSON.parse(localStorage.getItem('preferences') || '{}');
+            const preferencesDisplay = document.getElementById('preferences-display');
+            
+            let html = '<div class="preferences-grid">';
+            
+            if (preferences.interests && preferences.interests.length > 0) {
+                html += `
+                    <div class="preference-category">
+                        <h4>Interests</h4>
+                        <div class="preference-tags">
+                            ${preferences.interests.map(interest => `
+                                <span class="preference-tag">
+                                    <i class="fas fa-check"></i>
+                                    ${interest}
+                                </span>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            html += '</div>';
+            preferencesDisplay.innerHTML = html;
+        }
+
+        // Function to generate itinerary using RAG
+        async function generateRAGItinerary() {
+            const preferences = JSON.parse(localStorage.getItem('preferences') || '{}');
+            const destinations = JSON.parse(localStorage.getItem('destinations') || '[]');
+            const dates = JSON.parse(localStorage.getItem('dates') || '{}');
+            const budget = localStorage.getItem('budget') || '500';
+
+            if (!destinations.length) {
+                alert('Please select at least one destination');
+                return;
+            }
+
+            // Show loading spinner
+            document.getElementById('loadingSpinner').style.display = 'block';
+            document.getElementById('itinerarySection').style.display = 'none';
+
+            try {
+                const response = await fetch('/api/v1/generate-itinerary', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        destinations,
+                        dates,
+                        preferences,
+                        budget
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to generate itinerary');
+                }
+
+                const data = await response.json();
+                displayItinerary(data.itinerary);
+            } catch (error) {
+                console.error('Error generating itinerary:', error);
+                alert('Failed to generate itinerary. Please try again.');
+            } finally {
+                // Hide loading spinner
+                document.getElementById('loadingSpinner').style.display = 'none';
+                document.getElementById('itinerarySection').style.display = 'block';
+            }
+        }
+
+        // Function to display itinerary
+        function displayItinerary(itinerary) {
+            const container = document.getElementById('itinerary-container');
+            let html = '';
+
+            // Display daily plans
+            itinerary.daily_plans.forEach(day => {
+                html += `
+                    <div class="day-plan">
+                        <h3>Day ${day.day}</h3>
+                        <div class="activities">
+                            ${day.activities.map(activity => `
+                                <div class="activity">
+                                    <div class="activity-time">${activity.time}</div>
+                                    <div class="activity-details">
+                                        <h4>${activity.event_name}</h4>
+                                        <p>${activity.description}</p>
+                                        <div class="activity-meta">
+                                            <span><i class="fas fa-map-marker-alt"></i> ${activity.venue}</span>
+                                            <span>€${activity.price.replace('€', '')}</span>
+                                        </div>
+                                        <div class="booking-info">${activity.booking_info}</div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+
+            // Display additional tips in a clean format
+            if (itinerary.additional_tips && itinerary.additional_tips.length > 0) {
+                html += `
+                    <div class="additional-tips">
+                        <h3>Additional Tips</h3>
+                        <ul>
+                            ${itinerary.additional_tips.map(tip => `
+                                <li><i class="fas fa-lightbulb"></i> ${tip}</li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = html;
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Wait a short moment to ensure all elements are loaded
+            setTimeout(() => {
+                loadTripDetails();
+            }, 100);
+        });
+
+        function loadTripDetails() {
+            try {
+                // Debug logging
+                console.log('Loading trip details...');
+                console.log('Destinations:', localStorage.getItem('destinations'));
+                console.log('Dates:', localStorage.getItem('destinationDates'));
+                console.log('Budget:', localStorage.getItem('budget'));
+                console.log('Preferences:', localStorage.getItem('preferences'));
+
+                // Get destinations and dates
+                const destinations = JSON.parse(localStorage.getItem('destinations')) || [];
+                const destinationDates = JSON.parse(localStorage.getItem('destinationDates')) || {};
+                const budget = localStorage.getItem('budget') || '500';
+                const preferences = JSON.parse(localStorage.getItem('preferences')) || {
+                    interests: [],
+                    transport: [],
+                    accommodation: []
+                };
+
+                // Update destinations display
+                const destinationsText = destinations.length > 0 
+                    ? destinations.join(' → ')
+                    : 'No destinations selected';
+                document.getElementById('destinations').textContent = destinationsText;
+
+                // Update dates display
+                let datesText = 'No dates selected';
+                if (Object.keys(destinationDates).length > 0) {
+                    const firstCity = Object.keys(destinationDates)[0];
+                    const lastCity = Object.keys(destinationDates)[Object.keys(destinationDates).length - 1];
+                    const startDate = new Date(destinationDates[firstCity].start);
+                    const endDate = new Date(destinationDates[lastCity].end);
+                    datesText = `${startDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })} - ${endDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}`;
+                }
+                document.getElementById('dates').textContent = datesText;
+
+                // Update budget display
+                document.getElementById('budget').textContent = `€${budget}`;
+
+                // Update selected preferences display
+                updateSelectedOptionsDisplay(preferences);
+
+                // Populate transport and accommodation options
+                populateTransportOptions();
+                populateAccommodationOptions();
+                
+                // Update price summary
+                updatePriceSummary();
+            } catch (error) {
+                console.error('Error loading trip details:', error);
+                // Set default values if there's an error
+                document.getElementById('destinations').textContent = 'No destinations selected';
+                document.getElementById('dates').textContent = 'No dates selected';
+                document.getElementById('budget').textContent = '€500';
+            }
+        }
+
+        function updateSelectedOptionsDisplay(preferences) {
+            const selectedInterests = document.getElementById('selected-interests');
+            const selectedTransport = document.getElementById('selected-transport');
+            const selectedAccommodation = document.getElementById('selected-accommodation');
+
+            // Update interests display
+            if (preferences.interests && preferences.interests.length > 0) {
+                selectedInterests.innerHTML = preferences.interests.map(interest => 
+                    `<span class="selected-tag"><i class="fas fa-check"></i> ${interest}</span>`
+                ).join('');
+            } else {
+                selectedInterests.innerHTML = '<span class="no-selection">No interests selected</span>';
+            }
+
+            // Update transport display
+            if (preferences.transport && preferences.transport.length > 0) {
+                selectedTransport.innerHTML = preferences.transport.map(transport => 
+                    `<span class="selected-tag"><i class="fas fa-check"></i> ${transport}</span>`
+                ).join('');
+            } else {
+                selectedTransport.innerHTML = '<span class="no-selection">No transport preferences selected</span>';
+            }
+
+            // Update accommodation display
+            if (preferences.accommodation && preferences.accommodation.length > 0) {
+                selectedAccommodation.innerHTML = preferences.accommodation.map(accommodation => 
+                    `<span class="selected-tag"><i class="fas fa-check"></i> ${accommodation}</span>`
+                ).join('');
+            } else {
+                selectedAccommodation.innerHTML = '<span class="no-selection">No accommodation preferences selected</span>';
+            }
+        }
+
+        async function populateTransportOptions() {
+            const transportSelection = document.getElementById('transport-selection');
+            const destinations = JSON.parse(localStorage.getItem('destinations')) || [];
+            const preferences = JSON.parse(localStorage.getItem('preferences')) || { transport: [] };
+            const destinationDates = JSON.parse(localStorage.getItem('destinationDates')) || {};
+            
+            if (destinations.length === 0) {
+                transportSelection.innerHTML = '<p>Please select destinations first</p>';
+                return;
+            }
+
+            let html = '';
+            const destinationCity = destinations[destinations.length - 1];
+            html += `
+                <div class="city-section">
+                    <div class="city-header">
+                        <h4>Transportation in ${destinationCity}</h4>
+                    </div>
+                    <div class="options-container">
+            `;
+
+            // Show loading state
+            transportSelection.innerHTML = html + '<div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> Loading transport options...</div>';
+
+            try {
+                // Get dates for the destination
+                const dates = destinationDates[destinationCity] || {};
+                const startDate = dates.start ? new Date(dates.start) : new Date();
+                const endDate = dates.end ? new Date(dates.end) : new Date(startDate.getTime() + 24 * 60 * 60 * 1000);
+
+                // If no transport preferences selected, use all types
+                const transportTypes = preferences.transport && preferences.transport.length > 0 ? 
+                    preferences.transport : ['Train', 'Bus', 'Plane'];
+
+                // Try to get transport options from Kafka
+                const transportOptions = await fetchTransportFromKafka(destinationCity, startDate, endDate, transportTypes);
+                
+                if (transportOptions && transportOptions.length > 0) {
+                    transportOptions.forEach(option => {
+                        const transportType = option.type.toLowerCase();
+                        const icon = transportType === 'airfare' ? 'plane' : 
+                                   transportType === 'busfare' ? 'bus' : 'train';
+                        
+                        html += `
+                            <div class="option-card" data-type="${transportType}" data-price="${option.price}">
+                                <img src="${option.image}" alt="${option.name}" style="width: 100%; height: 200px; object-fit: cover; border-radius: 8px; margin-bottom: 10px;">
+                                <i class="fas fa-check check-icon"></i>
+                                <h5><i class="fas fa-${icon}"></i> ${option.name}</h5>
+                                <p class="price">€${option.price}</p>
+                                <p class="details">${option.description}</p>
+                                <div class="transport-details">
+                                    <span><i class="fas fa-clock"></i> ${option.duration}</span>
+                                    <span><i class="fas fa-calendar"></i> ${new Date(option.departureTime).toLocaleDateString()}</span>
+                                </div>
+                            </div>
+                        `;
+                    });
+                } else {
+                    throw new Error('No transport options available');
+                }
+            } catch (error) {
+                console.warn('Falling back to static transport options:', error);
+                // Fallback to static options
+                const staticOptions = getStaticTransportOptions(destinationCity, preferences.transport || []);
+                staticOptions.forEach(option => {
+                    const transportType = option.type.toLowerCase();
+                    const icon = transportType === 'airfare' ? 'plane' : 
+                               transportType === 'busfare' ? 'bus' : 'train';
+                    
+                    html += `
+                        <div class="option-card" data-type="${transportType}" data-price="${option.price}">
+                            <img src="${option.image}" alt="${option.name}" style="width: 100%; height: 200px; object-fit: cover; border-radius: 8px; margin-bottom: 10px;">
+                            <i class="fas fa-check check-icon"></i>
+                            <h5><i class="fas fa-${icon}"></i> ${option.name}</h5>
+                            <p class="price">€${option.price}</p>
+                            <p class="details">${option.description}</p>
+                            <div class="transport-details">
+                                <span><i class="fas fa-clock"></i> ${option.duration}</span>
+                                <span><i class="fas fa-calendar"></i> ${new Date().toLocaleDateString()}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            html += `
+                    </div>
+                </div>
+            `;
+            transportSelection.innerHTML = html;
+            addTransportClickHandlers();
+        }
+
+        // Function to fetch transport options from Kafka
+        async function fetchTransportFromKafka(destinationCity, startDate, endDate, transportTypes) {
+            try {
+                const response = await fetch('/api/v1/transport-options', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        destination: destinationCity,
+                        startDate: startDate.toISOString(),
+                        endDate: endDate.toISOString(),
+                        transportTypes: transportTypes
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch transport options');
+                }
+
+                const options = await response.json();
+                
+                // Group options by transport type
+                const groupedOptions = {
+                    'airfare': [],
+                    'busfare': [],
+                    'trainfare': []
+                };
+
+                options.forEach(option => {
+                    const type = option.type.toLowerCase();
+                    if (groupedOptions[type]) {
+                        groupedOptions[type].push(option);
+                    }
+                });
+
+                // Return all options in a flat array
+                return Object.values(groupedOptions).flat();
+            } catch (error) {
+                console.error('Error fetching from Kafka:', error);
+                throw error;
+            }
+        }
+
+        // Function to provide static transport options as fallback
+        function getStaticTransportOptions(destinationCity, transportTypes) {
+            const staticOptions = {
+                'Train': [
+                    {
+                        type: 'Train',
+                        name: 'Express Train',
+                        price: 50,
+                        description: 'Comfortable and scenic journey',
+                        duration: '2-3 hours',
+                        departureTime: new Date().toISOString(),
+                        image: 'https://images.unsplash.com/photo-1494515843206-f3117d3f51b7?w=500&h=300&fit=crop'
+                    },
+                    {
+                        type: 'Train',
+                        name: 'Regional Train',
+                        price: 35,
+                        description: 'Local train service',
+                        duration: '3-4 hours',
+                        departureTime: new Date().toISOString(),
+                        image: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=500&h=300&fit=crop'
+                    }
+                ],
+                'Bus': [
+                    {
+                        type: 'Bus',
+                        name: 'Express Bus',
+                        price: 30,
+                        description: 'Direct bus service',
+                        duration: '4-5 hours',
+                        departureTime: new Date().toISOString(),
+                        image: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=500&h=300&fit=crop'
+                    },
+                    {
+                        type: 'Bus',
+                        name: 'Local Bus',
+                        price: 20,
+                        description: 'Regular bus service',
+                        duration: '5-6 hours',
+                        departureTime: new Date().toISOString(),
+                        image: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=500&h=300&fit=crop'
+                    }
+                ],
+                'Plane': [
+                    {
+                        type: 'Plane',
+                        name: 'Direct Flight',
+                        price: 100,
+                        description: 'Fastest option',
+                        duration: '1-2 hours',
+                        departureTime: new Date().toISOString(),
+                        image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500&h=300&fit=crop'
+                    },
+                    {
+                        type: 'Plane',
+                        name: 'Connecting Flight',
+                        price: 80,
+                        description: 'Economical flight option',
+                        duration: '3-4 hours',
+                        departureTime: new Date().toISOString(),
+                        image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500&h=300&fit=crop'
+                    }
+                ]
+            };
+
+            // Filter options based on selected transport types
+            let options = [];
+            transportTypes.forEach(type => {
+                if (staticOptions[type]) {
+                    options = options.concat(staticOptions[type]);
+                }
+            });
+
+            // If no transport types selected, return all options
+            if (options.length === 0) {
+                Object.values(staticOptions).forEach(typeOptions => {
+                    options = options.concat(typeOptions);
+                });
+            }
+
+            return options;
+        }
+
+        function populateAccommodationOptions() {
+            const accommodationSelection = document.getElementById('accommodation-selection');
+            const destinations = JSON.parse(localStorage.getItem('destinations')) || [];
+            const preferences = JSON.parse(localStorage.getItem('preferences')) || { accommodation: [] };
+            
+            if (destinations.length === 0) {
+                accommodationSelection.innerHTML = '<p>Please select destinations first</p>';
+                return;
+            }
+
+            let html = '';
+            const destinationCity = destinations[destinations.length - 1];
+            html += `
+                <div class="city-section">
+                    <div class="city-header">
+                        <h4>Accommodation in ${destinationCity}</h4>
+                    </div>
+                    <div class="options-container">
+            `;
+
+            // Define accommodation options for each type with images
+            const accommodationOptions = {
+                'Hostel': [
+                    { name: 'Backpacker\'s Haven', price: 25, rating: 4.2, amenities: ['Free WiFi', 'Shared Kitchen', 'Common Room', '24/7 Reception'], image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500&h=300&fit=crop' },
+                    { name: 'Youth Hostel Central', price: 30, rating: 4.0, amenities: ['Free WiFi', 'Breakfast Included', 'Laundry', 'Tour Desk'], image: 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=500&h=300&fit=crop' },
+                    { name: 'City Hostel', price: 28, rating: 4.3, amenities: ['Free WiFi', 'Bar', 'Luggage Storage', 'City Tours'], image: 'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=500&h=300&fit=crop' },
+                    { name: 'Traveler\'s Rest', price: 27, rating: 4.1, amenities: ['Free WiFi', 'Kitchen', 'Bike Rental', 'Garden'], image: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=500&h=300&fit=crop' },
+                    { name: 'Downtown Hostel', price: 32, rating: 4.4, amenities: ['Free WiFi', 'Breakfast', 'Game Room', 'Rooftop'], image: 'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=500&h=300&fit=crop' }
+                ],
+                'Hotel': [
+                    { name: 'Grand Hotel', price: 120, rating: 4.7, amenities: ['Free WiFi', 'Room Service', 'Spa', 'Restaurant'], image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500&h=300&fit=crop' },
+                    { name: 'Boutique Hotel', price: 150, rating: 4.8, amenities: ['Free WiFi', 'Breakfast', 'Gym', 'Concierge'], image: 'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=500&h=300&fit=crop' },
+                    { name: 'Business Hotel', price: 100, rating: 4.5, amenities: ['Free WiFi', 'Business Center', 'Restaurant', 'Parking'], image: 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=500&h=300&fit=crop' },
+                    { name: 'Seaside Resort', price: 180, rating: 4.9, amenities: ['Free WiFi', 'Pool', 'Beach Access', 'Spa'], image: 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=500&h=300&fit=crop' },
+                    { name: 'City View Hotel', price: 130, rating: 4.6, amenities: ['Free WiFi', 'Restaurant', 'Fitness Center', 'Bar'], image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500&h=300&fit=crop' }
+                ],
+                'Apartment': [
+                    { name: 'City View Apartment', price: 90, rating: 4.6, amenities: ['Free WiFi', 'Full Kitchen', 'Washing Machine', 'Balcony'], image: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=500&h=300&fit=crop' },
+                    { name: 'Studio Apartment', price: 70, rating: 4.4, amenities: ['Free WiFi', 'Kitchenette', 'TV', 'Air Conditioning'], image: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=500&h=300&fit=crop' },
+                    { name: 'Luxury Apartment', price: 130, rating: 4.9, amenities: ['Free WiFi', 'Full Kitchen', 'Gym Access', 'Parking'], image: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=500&h=300&fit=crop' },
+                    { name: 'Modern Loft', price: 110, rating: 4.7, amenities: ['Free WiFi', 'Open Kitchen', 'High Ceilings', 'Smart Home'], image: 'https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=500&h=300&fit=crop' },
+                    { name: 'Garden Apartment', price: 85, rating: 4.5, amenities: ['Free WiFi', 'Kitchen', 'Private Garden', 'BBQ'], image: 'https://images.unsplash.com/photo-1484154218962-a197022b5858?w=500&h=300&fit=crop' }
+                ]
+            };
+
+            // If no accommodation preferences selected, use all types
+            const selectedTypes = preferences.accommodation && preferences.accommodation.length > 0 ? 
+                preferences.accommodation : ['Hostel', 'Hotel', 'Apartment'];
+
+            // Create a pool of all options from selected types
+            let allOptions = [];
+            selectedTypes.forEach(type => {
+                if (accommodationOptions[type]) {
+                    allOptions = allOptions.concat(accommodationOptions[type]);
+                }
+            });
+
+            // Randomly select 5 options from the pool
+            const selectedOptions = [];
+            while (selectedOptions.length < 5 && allOptions.length > 0) {
+                const randomIndex = Math.floor(Math.random() * allOptions.length);
+                selectedOptions.push(allOptions[randomIndex]);
+                allOptions.splice(randomIndex, 1);
+            }
+
+            // Display the selected options
+            selectedOptions.forEach(option => {
+                html += `
+                    <div class="option-card" data-type="${option.name.toLowerCase().includes('hostel') ? 'hostel' : 
+                                                         option.name.toLowerCase().includes('apartment') ? 'apartment' : 'hotel'}" 
+                         data-price="${option.price}">
+                        <img src="${option.image}" alt="${option.name}" style="width: 100%; height: 200px; object-fit: cover; border-radius: 8px; margin-bottom: 10px;">
+                        <i class="fas fa-check check-icon"></i>
+                        <h5>${option.name}</h5>
+                        <p class="price">€${option.price}/night</p>
+                        <p class="details">${option.name.includes('Hostel') ? 'Hostel' : 
+                                           option.name.includes('Apartment') ? 'Apartment' : 'Hotel'} with ${option.rating}★ rating</p>
+                        <div class="amenities">
+                            ${option.amenities.map(amenity => `
+                                <span class="amenity-tag">${amenity}</span>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += `
+                    </div>
+                </div>
+            `;
+            accommodationSelection.innerHTML = html;
+            addAccommodationClickHandlers();
+        }
+
+        function togglePreferences() {
+            const preferencesFilter = document.getElementById('preferences-filter');
+            const isVisible = preferencesFilter.style.display !== 'none';
+            preferencesFilter.style.display = isVisible ? 'none' : 'block';
+            
+            if (!isVisible) {
+                // Populate preferences when showing the filter
+                populatePreferences();
+            }
+        }
+
+        function populatePreferences() {
+            // Get current preferences from localStorage
+            const currentPreferences = JSON.parse(localStorage.getItem('preferences')) || {
+                interests: [],
+                transport: [],
+                accommodation: []
+            };
+
+            // Define all possible options
+            const interests = ['Historical Sites', 'Shopping', 'Food & Drink', 'Nature', 'Nightlife', 'Beaches'];
+            const transport = ['Train', 'Bus', 'Plane'];
+            const accommodation = ['Hostel', 'Hotel', 'Apartment'];
+
+            // Populate interests
+            const interestsFilter = document.getElementById('interests-filter');
+            interestsFilter.innerHTML = interests.map(interest => `
+                <div class="preference-option ${currentPreferences.interests.includes(interest) ? 'selected' : ''}" 
+                     data-type="interest" 
+                     data-value="${interest}">
+                    <i class="fas fa-heart"></i>
+                    ${interest}
+                </div>
+            `).join('');
+
+            // Populate transport
+            const transportFilter = document.getElementById('transport-filter');
+            transportFilter.innerHTML = transport.map(type => `
+                <div class="preference-option ${currentPreferences.transport.includes(type) ? 'selected' : ''}" 
+                     data-type="transport" 
+                     data-value="${type}">
+                    <i class="fas fa-train"></i>
+                    ${type}
+                </div>
+            `).join('');
+
+            // Populate accommodation
+            const accommodationFilter = document.getElementById('accommodation-filter');
+            accommodationFilter.innerHTML = accommodation.map(type => `
+                <div class="preference-option ${currentPreferences.accommodation.includes(type) ? 'selected' : ''}" 
+                     data-type="accommodation" 
+                     data-value="${type}">
+                    <i class="fas fa-bed"></i>
+                    ${type}
+                </div>
+            `).join('');
+
+            // Add click handlers
+            document.querySelectorAll('.preference-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    this.classList.toggle('selected');
+                });
+            });
+        }
+
+        function savePreferences() {
+            const preferences = {
+                interests: [],
+                transport: [],
+                accommodation: []
+            };
+
+            // Get selected interests
+            document.querySelectorAll('.preference-option[data-type="interest"].selected').forEach(option => {
+                preferences.interests.push(option.dataset.value);
+            });
+
+            // Get selected transport
+            document.querySelectorAll('.preference-option[data-type="transport"].selected').forEach(option => {
+                preferences.transport.push(option.dataset.value);
+            });
+
+            // Get selected accommodation
+            document.querySelectorAll('.preference-option[data-type="accommodation"].selected').forEach(option => {
+                preferences.accommodation.push(option.dataset.value);
+            });
+
+            // Save to localStorage
+            localStorage.setItem('preferences', JSON.stringify(preferences));
+
+            // Update display
+            updateSelectedOptionsDisplay(preferences);
+
+            // Update transport and accommodation options based on new preferences
+            populateTransportOptions();
+            populateAccommodationOptions();
+
+            // Hide preferences filter
+            document.getElementById('preferences-filter').style.display = 'none';
+        }
+
+        // Add click handlers for transport options
+        function addTransportClickHandlers() {
+            document.querySelectorAll('#transport-selection .option-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    const section = this.closest('.city-section');
+                    section.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
+                    this.classList.add('selected');
+                    updatePriceSummary();
+                });
+            });
+        }
+
+        // Add click handlers for accommodation options
+        function addAccommodationClickHandlers() {
+            document.querySelectorAll('#accommodation-selection .option-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    const section = this.closest('.city-section');
+                    section.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
+                    this.classList.add('selected');
+                    updatePriceSummary();
+                });
+            });
+        }
+
+        // Add event listener to book button
+        document.addEventListener('DOMContentLoaded', function() {
+            const bookButton = document.querySelector('.book-button');
+            if (bookButton) {
+                bookButton.addEventListener('click', handleBooking);
+                // Ensure button starts in the correct state
+                bookButton.disabled = false;
+                bookButton.textContent = 'Book Now';
+            }
+        });
+
+        // Function to handle booking
+        function handleBooking() {
+            // Get all selected options
+            const selectedTransport = document.querySelector('#transport-selection .option-card.selected');
+            const selectedAccommodation = document.querySelector('#accommodation-selection .option-card.selected');
+            
+            if (!selectedTransport || !selectedAccommodation) {
+                alert('Please select both transport and accommodation options before booking.');
+                return;
+            }
+            
+            // Show success message
+            showSuccessMessage();
+        }
+
+        // Function to show success message
+        function showSuccessMessage() {
+            const successMessage = document.getElementById('successMessage');
+            successMessage.style.display = 'flex';
+            
+            // Disable the book button after successful booking
+            const bookButton = document.querySelector('.book-button');
+            if (bookButton) {
+                bookButton.disabled = true;
+                bookButton.textContent = 'Booking Confirmed';
+            }
+        }
+    </script>
+</body>
+</html>

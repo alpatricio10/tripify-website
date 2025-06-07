@@ -1,0 +1,1604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plan Your Eurotrip - Tripify</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-image: url('{{ url_for('static', filename='images/back_ground.png') }}');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+        .header {
+            background-color: #f3f2ec;
+            padding: 15px 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            width: calc(100% - 60px);
+            top: 0;
+            z-index: 1000;
+        }
+        .progress-bar {
+            background-color: #e9ecef;
+            height: 4px;
+            margin: 20px 0;
+            position: relative;
+        }
+        .progress {
+            background-color: white;
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .step-indicator {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+            padding: 0 20px;
+        }
+        .step {
+            text-align: center;
+            color: #666;
+            font-weight: 500;
+        }
+        .step.active {
+            color: white;
+            font-weight: 600;
+        }
+        .main-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .section {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .section h3 {
+            color: #00473e;
+            margin-bottom: 20px;
+        }
+        .location-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            transition: all 0.3s ease;
+            max-height: 1000px;
+            overflow: hidden;
+        }
+        .location-field {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+            opacity: 1;
+            transform: translateY(0);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .location-field.new {
+            animation: slideDown 0.3s ease forwards;
+        }
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .location-field input {
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 16px;
+            width: 100%;
+            background-color: white;
+        }
+        .location-field input:focus {
+            border-color: #00473e;
+            outline: none;
+        }
+        .location-field select {
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 16px;
+            width: 100%;
+            background-color: white;
+            cursor: pointer;
+        }
+        .location-field select:focus {
+            border-color: #00473e;
+            outline: none;
+        }
+        .date-picker-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+        .date-field input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 16px;
+            background-color: #ffffff;
+            color: #333;
+        }
+        .date-field input::-webkit-calendar-picker-indicator {
+            filter: invert(0.5);
+        }
+        .date-field input::-webkit-datetime-edit {
+            color: #333;
+        }
+        .date-field input::-webkit-datetime-edit-fields-wrapper {
+            color: #333;
+        }
+        .budget-section {
+            text-align: center;
+        }
+        .budget-display {
+            font-size: 24px;
+            color: #00473e;
+            font-weight: 600;
+            margin: 20px 0;
+        }
+        .preference-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .preference-button {
+            padding: 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            justify-content: center;
+            text-align: left;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .preference-button i {
+            font-size: 24px;
+            color: #00473e;
+            width: 32px;
+            text-align: center;
+        }
+        .preference-button:hover {
+            border-color: #00473e;
+            transform: translateY(-2px);
+        }
+        .preference-button.selected {
+            background: #00473e;
+            color: white;
+            border-color: #00473e;
+        }
+        .preference-button.selected i {
+            color: white;
+        }
+        .cta-section {
+            text-align: center;
+            margin-top: 40px;
+            background: linear-gradient(135deg, #00473e 0%, #076e5b 100%);
+            padding: 40px 20px;
+            border-radius: 15px;
+            color: white;
+        }
+        .cta-section h2 {
+            color: white;
+            margin-bottom: 15px;
+        }
+        .cta-section p {
+            color: white;
+            margin-bottom: 20px;
+        }
+        .plan-button {
+            background: #00473e;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        .plan-button:hover {
+            transform: scale(1.05);
+        }
+        .student-discount {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .student-discount:hover {
+            background: #dee2e6;
+        }
+        .student-discount i {
+            color: #00473e;
+            font-size: 20px;
+        }
+        .student-discount.active {
+            background: #00473e;
+            color: white;
+        }
+        .student-discount.active i {
+            color: white;
+        }
+        datalist {
+            background-color: white;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 8px;
+        }
+        .budget-input-container {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin: 30px 0;
+        }
+        .budget-input {
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 16px;
+            width: 180px;
+            text-align: right;
+        }
+        .budget-input:focus {
+            border-color: #00473e;
+            outline: none;
+        }
+        .budget-error {
+            color: #dc3545;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+        .add-destination-btn {
+            grid-column: 1 / -1;
+            background: #00473e;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            width: 100%;
+        }
+        .add-destination-btn:hover {
+            background: #076e5b;
+            transform: translateY(-2px);
+        }
+        .add-destination-btn:disabled {
+            background: #e9ecef;
+            color: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .date-group {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .date-group h3 {
+            color: #00473e;
+            margin-bottom: 20px;
+            font-size: 1.4em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .date-group h3 i {
+            color: #00473e;
+        }
+        .date-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .input-group label {
+            color: #00473e;
+            font-weight: 500;
+            font-size: 1.1em;
+        }
+        .input-group input {
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 16px;
+            width: 100%;
+            background-color: white;
+            color: #333;
+        }
+        .input-group input:focus {
+            border-color: #00473e;
+            outline: none;
+        }
+        .input-group input::-webkit-calendar-picker-indicator {
+            filter: invert(0.5);
+            cursor: pointer;
+        }
+        .next-step-btn, .back-step-btn {
+            background: #00473e;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+        .next-step-btn:hover, .back-step-btn:hover {
+            background: #076e5b;
+            transform: translateY(-2px);
+        }
+        .back-step-btn {
+            background: #6c757d;
+            margin-right: 10px;
+        }
+        .back-step-btn:hover {
+            background: #5a6268;
+        }
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+        .summary-container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            color: #333;
+        }
+        .summary-item {
+            margin-bottom: 30px;
+        }
+        .summary-item h3 {
+            color: #00473e;
+            margin-bottom: 15px;
+        }
+        .summary-section {
+            margin-bottom: 20px;
+        }
+        .summary-section h4 {
+            color: #00473e;
+            margin-bottom: 10px;
+        }
+        .price-breakdown {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .price-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 10px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .price-item.total {
+            font-weight: 600;
+            font-size: 1.2em;
+            border-bottom: none;
+            margin-top: 10px;
+            padding-top: 20px;
+            border-top: 2px solid #e9ecef;
+        }
+        .student-discount {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .student-discount:hover {
+            background: #dee2e6;
+        }
+        .student-discount i {
+            color: #00473e;
+            font-size: 20px;
+        }
+        .student-discount.active {
+            background: #00473e;
+            color: white;
+        }
+        .student-discount.active i {
+            color: white;
+        }
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            margin-right: 20px;
+        }
+        .nav-links a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+        .nav-links a:hover {
+            color: #00473e;
+        }
+        .header img {
+            width: 120px;
+            height: auto;
+            transition: opacity 0.3s ease;
+        }
+        .header img:hover {
+            opacity: 0.8;
+        }
+        .delete-destination-btn {
+            position: absolute;
+            right: -40px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #dc3545;
+            color: white;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        .delete-destination-btn:hover {
+            background: #c82333;
+            transform: translateY(-50%) scale(1.1);
+        }
+        /* Accommodation Section Styles */
+        .accommodation-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .accommodation-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .accommodation-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .accommodation-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .accommodation-details {
+            padding: 20px;
+        }
+
+        .accommodation-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #00473e;
+            margin-bottom: 10px;
+        }
+
+        .accommodation-price {
+            font-size: 20px;
+            font-weight: 700;
+            color: #00473e;
+            margin-bottom: 10px;
+        }
+
+        .accommodation-rating {
+            color: #ffc107;
+            margin-bottom: 10px;
+        }
+
+        .accommodation-amenities {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .amenity-tag {
+            background: #f8f9fa;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .book-now-btn {
+            background: #00473e;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            width: 100%;
+            margin-top: 15px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .book-now-btn:hover {
+            background: #076e5b;
+        }
+        .transport-section {
+            margin-top: 30px;
+        }
+        .transport-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .transport-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        .transport-card:hover {
+            transform: translateY(-5px);
+            border-color: #00473e;
+        }
+        .transport-card.selected {
+            border-color: #28a745;
+            background: #e8f5e9;
+        }
+        .transport-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+        .transport-details {
+            padding: 20px;
+        }
+        .transport-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #00473e;
+            margin-bottom: 10px;
+        }
+        .transport-price {
+            font-size: 20px;
+            font-weight: 700;
+            color: #28a745;
+            margin-bottom: 10px;
+        }
+        .transport-info {
+            color: #666;
+            margin-bottom: 10px;
+        }
+        .transport-duration {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        .transport-departure {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #666;
+        }
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: #00473e;
+        }
+        .loading-spinner i {
+            animation: spin 1s linear infinite;
+            font-size: 24px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        /* New styles for user preferences and recommendations */
+        .user-preferences {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .preferences-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .preference-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .preference-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .city-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .city-tag {
+            background: #e9ecef;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .city-tag.selected {
+            background: #00473e;
+            color: white;
+        }
+        
+        .recommendations-section {
+            margin-top: 40px;
+        }
+        
+        .itinerary-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .itinerary-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        }
+        
+        .itinerary-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .itinerary-activities {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .activity-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .filter-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .filter-group label {
+            font-weight: 500;
+            color: #00473e;
+        }
+        
+        .filter-group select,
+        .filter-group input {
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="{{ url_for('home') }}">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Tripify Logo" width="120">
+        </a>
+        <div class="nav-links">
+            <a href="{{ url_for('home') }}">Home</a>
+            <a href="{{ url_for('home') }}#features">Features</a>
+            <a href="{{ url_for('home') }}#testimonials">Testimonials</a>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="progress-bar">
+            <div class="progress" id="progress"></div>
+        </div>
+        <div class="step-indicator">
+            <div class="step active">1. Destinations</div>
+            <div class="step">2. Dates</div>
+            <div class="step">3. Preferences</div>
+            <div class="step">4. Budget</div>
+        </div>
+
+        <div class="section" id="destinations-section">
+            <h3>Where do you want to go?</h3>
+            <div class="location-inputs">
+                <div class="location-field">
+                    <label for="starting-point">Starting Point:</label>
+                    <select id="starting-point" name="starting-point"></select>
+                </div>
+                <div class="location-field">
+                    <label for="destination-1">Destination 1:</label>
+                    <select id="destination-1" name="destination-1"></select>
+                </div>
+            </div>
+            <button id="add-destination" class="add-destination-btn">+ Add Another City</button>
+            <button class="next-step-btn" onclick="nextStep('destinations-section', 'dates-section')">Next: Select Dates</button>
+        </div>
+
+        <div class="section" id="dates-section" style="display: none;">
+            <h3>When do you want to travel?</h3>
+            <div class="dates-container">
+                <div id="destination-dates">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+            </div>
+            <div class="navigation-buttons">
+                <button class="back-step-btn" onclick="previousStep('dates-section', 'destinations-section')">Back to Destinations</button>
+                <button class="next-step-btn" onclick="nextStep('dates-section', 'preferences-section')">Next: Set Preferences</button>
+            </div>
+        </div>
+
+        <div class="section" id="preferences-section" style="display: none;">
+            <h3>What are your interests?</h3>
+            <div class="preference-grid">
+                <button class="preference-button">
+                    <i class="fas fa-landmark"></i>
+                    Historical Sites
+                </button>
+                <button class="preference-button">
+                    <i class="fas fa-moon"></i>
+                    Nightlife
+                </button>
+                <button class="preference-button">
+                    <i class="fas fa-utensils"></i>
+                    Local Food
+                </button>
+                <button class="preference-button">
+                    <i class="fas fa-palette"></i>
+                    Art & Museums
+                </button>
+                <button class="preference-button">
+                    <i class="fas fa-mountain"></i>
+                    Nature
+                </button>
+                <button class="preference-button">
+                    <i class="fas fa-shopping-bag"></i>
+                    Shopping
+                </button>
+                <button class="preference-button">
+                    <i class="fas fa-umbrella-beach"></i>
+                    Beaches
+                </button>
+            </div>
+
+            <h3 style="margin-top: 30px;">Transportation Preference</h3>
+            <div class="preference-grid">
+                <button class="preference-button">
+                    <i class="fas fa-train"></i>
+                    Train
+                </button>
+                <button class="preference-button">
+                    <i class="fas fa-bus"></i>
+                    Bus
+                </button>
+                <button class="preference-button">
+                    <i class="fas fa-plane"></i>
+                    Plane
+                </button>
+            </div>
+
+            <h3 style="margin-top: 30px;">Accommodation Type</h3>
+            <div class="preference-grid">
+                <button class="preference-button">
+                    <i class="fas fa-bed"></i>
+                    Hostel
+                </button>
+                <button class="preference-button">
+                    <i class="fas fa-hotel"></i>
+                    Hotel
+                </button>
+                <button class="preference-button">
+                    <i class="fas fa-home"></i>
+                    Apartment
+                </button>
+            </div>
+            <div class="navigation-buttons">
+                <button class="back-step-btn" onclick="previousStep('preferences-section', 'dates-section')">Back to Dates</button>
+                <button class="next-step-btn" onclick="nextStep('preferences-section', 'budget-section')">Next: Set Budget</button>
+            </div>
+        </div>
+
+        <div class="section" id="budget-section" style="display: none;">
+            <h3>What's your budget?</h3>
+            <div class="budget-display">€<span id="budget-value">500</span></div>
+            <div class="budget-input-container">
+                <input type="range" id="budget-slider" min="100" max="10000" value="500" step="100" style="flex-grow: 1">
+                <input type="number" id="budget-input" class="budget-input" value="500" min="100" max="10000">
+            </div>
+            <div id="budget-error" class="budget-error">Please enter a value between 100 and 10,000</div>
+            <div class="navigation-buttons">
+                <button class="back-step-btn" onclick="previousStep('budget-section', 'preferences-section')">Back to Preferences</button>
+                <button class="plan-button" onclick="location.href='{{ url_for('trip') }}'">Generate My Trip Plan</button>
+            </div>
+        </div>
+
+        <div class="cta-section" style="display: none;">
+            <h2>Ready to Plan Your Adventure?</h2>
+            <div class="summary-container">
+                <div class="summary-item">
+                    <h3>Trip Summary</h3>
+                    <div id="trip-summary"></div>
+                </div>
+                <div class="summary-item">
+                    <h3>Price Summary</h3>
+                    <div class="price-breakdown">
+                        <div class="price-item">
+                            <span>Service Fee</span>
+                            <span>€5.00</span>
+                        </div>
+                        <div class="student-discount" onclick="toggleStudentDiscount()">
+                            <i class="fas fa-graduation-cap"></i>
+                            <span>I'm a student - Apply 20% discount</span>
+                        </div>
+                        <div class="price-item total">
+                            <span>Total</span>
+                            <span id="total-price">€5.00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button class="plan-button" onclick="location.href='{{ url_for('trip') }}'">Generate My Trip Plan</button>
+        </div>
+    </div>
+
+    <script>
+        // Function to update the progress bar
+        function updateProgress() {
+            const sections = document.querySelectorAll('.section');
+            const progress = document.getElementById('progress');
+            const stepIndicators = document.querySelectorAll('.step');
+
+            let completedSections = 0;
+
+            // Check Destination Section
+            const fromSelect = document.getElementById('starting-point');
+            const toSelects = document.querySelectorAll('select[name="destination-1"]');
+            let destinationSectionComplete = fromSelect.value !== '';
+            if (destinationSectionComplete) {
+                let allToSelected = true;
+                toSelects.forEach(select => {
+                    if (select.value === '') {
+                        allToSelected = false;
+                    }
+                });
+                if (toSelects.length > 0 && allToSelected) {
+                    completedSections++;
+                }
+            }
+
+            // Check Dates Section
+            const dates = document.querySelectorAll('input[type="date"]');
+            if (dates.length > 0) {
+                completedSections++;
+            }
+
+            // Check Budget Section
+            const budgetValue = parseInt(document.getElementById('budget-value').textContent);
+            if (budgetValue >= 100 && budgetValue <= 10000) { // Assuming a valid budget range
+                completedSections++;
+            }
+
+            // Check Preferences Section (at least one interest, one transport, one accommodation)
+            const interestSelected = document.querySelectorAll('#preferences-section .preference-grid:nth-of-type(1) .preference-button.selected').length > 0;
+            const transportSelected = document.querySelectorAll('#preferences-section .preference-grid:nth-of-type(2) .preference-button.selected').length > 0;
+            const accommodationSelected = document.querySelectorAll('#preferences-section .preference-grid:nth-of-type(3) .preference-button.selected').length > 0;
+
+            if (interestSelected && transportSelected && accommodationSelected) {
+                completedSections++;
+            }
+
+            const totalSections = sections.length;
+            progress.style.width = `${(completedSections / totalSections) * 100}%`;
+
+            // Update step indicator active states
+            stepIndicators.forEach((step, index) => {
+                if (index < completedSections) {
+                    step.classList.add('active');
+                } else {
+                    step.classList.remove('active');
+                }
+            });
+        }
+
+        // Global array of available cities
+        const ALL_CITIES = ['Rome', 'Madrid', 'Barcelona', 'Paris'];
+        const MAX_DESTINATIONS = 4;
+        let destinationCount = 1; // Start with 1, as 'destination-1' is already in HTML
+
+        // Function to get all currently selected cities (from starting point and all destinations)
+        function getAllSelectedCities() {
+            const selected = [];
+            const fromCity = document.getElementById('starting-point').value;
+            if (fromCity) {
+                selected.push(fromCity);
+            }
+            document.querySelectorAll('select[name^="destination-"]').forEach(select => {
+                if (select.value) {
+                    selected.push(select.value);
+                }
+            });
+            return selected;
+        }
+
+        // Function to update options for all destination dropdowns
+        function updateDestinationOptions() {
+            const currentlySelectedCities = getAllSelectedCities();
+            const allDestinationSelects = document.querySelectorAll('select[name^="destination-"]');
+
+            allDestinationSelects.forEach(currentSelect => {
+                const currentSelectValue = currentSelect.value;
+                currentSelect.innerHTML = ''; // Clear existing options
+
+                // Add default "Select a city" option
+                const defaultOption = document.createElement('option');
+                defaultOption.value = '';
+                defaultOption.textContent = 'Select a city';
+                currentSelect.appendChild(defaultOption);
+
+                // Populate options, excluding already selected cities (except the current select's own value)
+                ALL_CITIES.forEach(city => {
+                    if (!currentlySelectedCities.includes(city) || city === currentSelectValue) {
+                        const option = document.createElement('option');
+                        option.value = city;
+                        option.textContent = city;
+                        currentSelect.appendChild(option);
+                    }
+                });
+
+                // Re-select the value if it's still valid
+                if (currentSelectValue && currentlySelectedCities.includes(currentSelectValue)) {
+                    currentSelect.value = currentSelectValue;
+                } else {
+                    currentSelect.value = ''; // Reset if the selected city is no longer valid
+                }
+            });
+        }
+
+        // Function to update the add destination button state
+        function updateAddButtonState() {
+            const addDestinationButton = document.getElementById('add-destination');
+            if (destinationCount >= MAX_DESTINATIONS) {
+                addDestinationButton.disabled = true;
+                addDestinationButton.textContent = 'Maximum 4 destinations allowed';
+                addDestinationButton.style.cursor = 'not-allowed';
+            } else {
+                addDestinationButton.disabled = false;
+                addDestinationButton.textContent = '+ Add Another City';
+                addDestinationButton.style.cursor = 'pointer';
+            }
+        }
+
+        // Function to add a new destination input field
+        function addNewDestination() {
+            if (destinationCount < MAX_DESTINATIONS) {
+                destinationCount++;
+                const locationInputs = document.querySelector('.location-inputs');
+                const newDestinationField = document.createElement('div');
+                newDestinationField.className = 'location-field new';
+
+                const label = document.createElement('label');
+                label.htmlFor = `destination-${destinationCount}`;
+                label.textContent = `Destination ${destinationCount}:`;
+
+                const select = document.createElement('select');
+                select.id = `destination-${destinationCount}`;
+                select.name = `destination-${destinationCount}`;
+                select.className = 'destination-select';
+
+                const deleteButton = document.createElement('button');
+                deleteButton.className = 'delete-destination-btn';
+                deleteButton.innerHTML = '<i class="fas fa-times"></i>';
+                deleteButton.onclick = function() {
+                    deleteDestination(destinationCount);
+                };
+
+                newDestinationField.appendChild(label);
+                newDestinationField.appendChild(select);
+                newDestinationField.appendChild(deleteButton);
+                locationInputs.appendChild(newDestinationField);
+
+                // Add event listener to the newly created select
+                select.addEventListener('change', function() {
+                    updateDestinationOptions(); // Update options for all dropdowns
+                    updateProgress();
+                    saveTripDetails();
+                    checkAndShowDatesSection();
+                });
+
+                updateDestinationOptions(); // Populate options for the new select
+                updateAddButtonState();
+                updateProgress();
+                saveTripDetails();
+
+                // Remove the animation class after it's done for subsequent additions
+                setTimeout(() => {
+                    newDestinationField.classList.remove('new');
+                }, 300);
+            }
+        }
+
+        function deleteDestination(index) {
+            const destinationField = document.querySelector(`#destination-${index}`).closest('.location-field');
+            destinationField.remove();
+            destinationCount--;
+            updateDestinationOptions();
+            updateAddButtonState();
+            updateProgress();
+            saveTripDetails();
+            checkAndShowDatesSection();
+        }
+
+        // Save trip details to localStorage
+        function saveTripDetails() {
+            // Save destinations
+            const destinations = [];
+            const fromCity = document.getElementById('starting-point').value;
+            if (fromCity) {
+                destinations.push(fromCity);
+            }
+
+            document.querySelectorAll('select[name^="destination-"]').forEach(select => {
+                if (select.value) {
+                    destinations.push(select.value);
+                }
+            });
+            localStorage.setItem('destinations', JSON.stringify(destinations));
+
+            // Save dates
+            const dates = {
+                start: document.getElementById('start-date-0').value,
+                end: document.getElementById('end-date-0').value
+            };
+            localStorage.setItem('dates', JSON.stringify(dates));
+
+            // Save budget
+            localStorage.setItem('budget', document.getElementById('budget-value').textContent);
+
+            // Save only selected preferences
+            const preferences = {
+                interests: [],
+                transport: [],
+                accommodation: []
+            };
+
+            // Get selected interests
+            document.querySelectorAll('#preferences-section .preference-grid:nth-of-type(1) .preference-button.selected').forEach(button => {
+                preferences.interests.push(button.textContent.trim());
+            });
+
+            // Get selected transport
+            document.querySelectorAll('#preferences-section .preference-grid:nth-of-type(2) .preference-button.selected').forEach(button => {
+                preferences.transport.push(button.textContent.trim());
+            });
+
+            // Get selected accommodation
+            document.querySelectorAll('#preferences-section .preference-grid:nth-of-type(3) .preference-button.selected').forEach(button => {
+                preferences.accommodation.push(button.textContent.trim());
+            });
+
+            localStorage.setItem('preferences', JSON.stringify(preferences));
+        }
+
+        // DOMContentLoaded event listener to ensure all elements are loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Populate the 'starting-point' (Starting Point) select with all cities initially
+            const fromSelect = document.getElementById('starting-point');
+            fromSelect.innerHTML = ''; // Clear existing options
+            
+            // Add default option
+            const defaultOption = document.createElement('option');
+            defaultOption.value = '';
+            defaultOption.textContent = 'Select a city';
+            fromSelect.appendChild(defaultOption);
+
+            // Add all cities
+            ALL_CITIES.forEach(city => {
+                const option = document.createElement('option');
+                option.value = city;
+                option.textContent = city;
+                fromSelect.appendChild(option);
+            });
+
+            // Attach event listener to the 'starting-point' (Starting Point) select
+            fromSelect.addEventListener('change', function() {
+                updateDestinationOptions(); // Update options for all destination dropdowns
+                updateProgress();
+                saveTripDetails();
+                checkAndShowDatesSection();
+            });
+
+            // Attach event listener to the initial 'destination-1' Destination select
+            const initialToSelect = document.getElementById('destination-1');
+            if (initialToSelect) {
+                initialToSelect.addEventListener('change', function() {
+                    updateDestinationOptions(); // Update options for all destination dropdowns
+                    updateProgress();
+                    saveTripDetails();
+                    checkAndShowDatesSection();
+                });
+            }
+
+            // Initialize the options for the initial destination select
+            updateDestinationOptions();
+
+            // Add click handler for the add destination button
+            document.getElementById('add-destination').addEventListener('click', addNewDestination);
+
+            // Initialize add button state
+            updateAddButtonState();
+
+            // Handle date inputs
+            document.querySelectorAll('input[type="date"]').forEach(input => {
+                // Set minimum date to today
+                const today = new Date().toISOString().split('T')[0];
+                input.min = today;
+                
+                input.addEventListener('change', function() {
+                    const startDate = document.getElementById('start-date-0').value;
+                    const endDate = document.getElementById('end-date-0').value;
+                    
+                    if (this.id === 'start-date-0') {
+                        // Set minimum date for end date to be the selected start date
+                        document.getElementById('end-date-0').min = startDate;
+                        // If end date is before new start date, update it
+                        if (endDate && endDate < startDate) {
+                            document.getElementById('end-date-0').value = startDate;
+                        }
+                    } else if (this.id === 'end-date-0') {
+                        // Ensure end date is not before start date
+                        if (endDate < startDate) {
+                            this.value = startDate;
+                        }
+                    }
+                    
+                    updateProgress();
+                    saveTripDetails();
+                });
+            });
+
+            // Handle budget slider and input
+            const budgetSlider = document.getElementById('budget-slider');
+            const budgetInput = document.getElementById('budget-input');
+            const budgetValueDisplay = document.getElementById('budget-value');
+            const budgetError = document.getElementById('budget-error');
+
+            function updateBudget(value) {
+                const numValue = parseInt(value);
+                if (!isNaN(numValue) && numValue >= 100 && numValue <= 10000) {
+                    budgetValueDisplay.textContent = numValue;
+                    budgetSlider.value = numValue;
+                    budgetInput.value = numValue;
+                    budgetError.style.display = 'none';
+                    updateProgress();
+                    saveTripDetails();
+                } else {
+                    budgetError.style.display = 'block';
+                }
+            }
+
+            budgetSlider.addEventListener('input', function() {
+                updateBudget(this.value);
+            });
+
+            budgetInput.addEventListener('input', function() {
+                updateBudget(this.value);
+            });
+
+            budgetInput.addEventListener('blur', function() {
+                const value = parseInt(this.value);
+                if (isNaN(value) || value < 100) {
+                    this.value = 100;
+                    updateBudget(100);
+                } else if (value > 10000) {
+                    this.value = 10000;
+                    updateBudget(10000);
+                }
+            });
+
+            // Handle preference button selection
+            document.querySelectorAll('.preference-button').forEach(button => {
+                button.addEventListener('click', function() {
+                    // Toggle selection for all preference buttons
+                    this.classList.toggle('selected');
+                    updateProgress();
+                    saveTripDetails();
+                });
+            });
+
+            // Initial progress update
+            updateProgress();
+        });
+
+        function checkAndShowDatesSection() {
+            const fromSelect = document.getElementById('starting-point');
+            const toSelects = document.querySelectorAll('select[name="destination-1"]');
+            
+            // Check if starting point is selected
+            if (!fromSelect.value) {
+                console.log('No starting point selected');
+                return;
+            }
+            
+            // Check if all destination selects have values
+            let allSelected = true;
+            toSelects.forEach(select => {
+                console.log('Destination value:', select.value);
+                if (!select.value) {
+                    allSelected = false;
+                }
+            });
+            
+            console.log('All destinations selected:', allSelected);
+            
+            // If all destinations are selected, enable the next button
+            const nextButton = document.querySelector('#destinations-section .next-step-btn');
+            if (nextButton) {
+                nextButton.disabled = !allSelected;
+                nextButton.style.opacity = allSelected ? '1' : '0.5';
+                nextButton.style.cursor = allSelected ? 'pointer' : 'not-allowed';
+            }
+        }
+
+        function populateDestinationDates() {
+            console.log('Populating destination dates...');
+            const destinations = getDestinations();
+            const destinationCities = destinations.slice(1); // Skip the starting point
+            console.log('Destinations:', destinationCities);
+            
+            const datesContainer = document.getElementById('destination-dates');
+            datesContainer.innerHTML = '';
+
+            destinationCities.forEach((destination, index) => {
+                console.log('Creating date inputs for:', destination);
+                const dateGroup = document.createElement('div');
+                dateGroup.className = 'date-group';
+                dateGroup.innerHTML = `
+                    <h3><i class="fas fa-calendar-alt"></i> ${destination}</h3>
+                    <div class="date-inputs">
+                        <div class="input-group">
+                            <label for="start-date-${index}">Arrival Date</label>
+                            <input type="date" id="start-date-${index}" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="end-date-${index}">Departure Date</label>
+                            <input type="date" id="end-date-${index}" required>
+                        </div>
+                    </div>
+                `;
+                datesContainer.appendChild(dateGroup);
+            });
+
+            // Set min dates for all date inputs
+            const today = new Date().toISOString().split('T')[0];
+            document.querySelectorAll('input[type="date"]').forEach(input => {
+                input.min = today;
+                console.log('Setting min date for input:', input.id);
+            });
+
+            // Add event listeners for date validation and propagation
+            setupDateEventListeners();
+        }
+
+        function setupDateEventListeners() {
+            // Get all date inputs
+            const dateInputs = document.querySelectorAll('input[type="date"]');
+            
+            dateInputs.forEach((input, index) => {
+                input.addEventListener('change', function() {
+                    // If this is a departure date, propagate to next destination's arrival
+                    if (this.id.startsWith('end-date-')) {
+                        const nextIndex = parseInt(this.id.split('-')[2]) + 1;
+                        const nextStartInput = document.getElementById(`start-date-${nextIndex}`);
+                        if (nextStartInput) {
+                            nextStartInput.value = this.value;
+                            nextStartInput.min = this.value;
+                        }
+                    }
+                    
+                    // If this is an arrival date, update the min date for departure
+                    if (this.id.startsWith('start-date-')) {
+                        const currentIndex = parseInt(this.id.split('-')[2]);
+                        const endInput = document.getElementById(`end-date-${currentIndex}`);
+                        if (endInput) {
+                            endInput.min = this.value;
+                            if (endInput.value && new Date(endInput.value) < new Date(this.value)) {
+                                endInput.value = this.value;
+                            }
+                        }
+                    }
+                    
+                    validateDateSequence();
+                });
+            });
+        }
+
+        function validateDateSequence() {
+            const destinations = getDestinations();
+            let isValid = true;
+            let previousEndDate = null;
+
+            // Check all destinations (skip starting point)
+            for (let i = 1; i < destinations.length; i++) {
+                const startDate = document.getElementById(`start-date-${i-1}`).value;
+                const endDate = document.getElementById(`end-date-${i-1}`).value;
+
+                if (startDate && endDate) {
+                    if (new Date(startDate) > new Date(endDate)) {
+                        alert(`Departure date cannot be before arrival date for ${destinations[i]}`);
+                        isValid = false;
+                        break;
+                    }
+
+                    if (previousEndDate && new Date(startDate) < new Date(previousEndDate)) {
+                        alert(`Arrival date in ${destinations[i]} cannot be before departure from previous destination`);
+                        isValid = false;
+                        break;
+                    }
+
+                    previousEndDate = endDate;
+                }
+            }
+
+            return isValid;
+        }
+
+        function validateDates() {
+            const destinations = getDestinations();
+            let isValid = true;
+            let dates = {};
+
+            // Check all destinations (skip starting point)
+            for (let i = 1; i < destinations.length; i++) {
+                const startDate = document.getElementById(`start-date-${i-1}`).value;
+                const endDate = document.getElementById(`end-date-${i-1}`).value;
+
+                if (!startDate || !endDate) {
+                    alert('Please select both arrival and departure dates for all destinations');
+                    isValid = false;
+                    break;
+                }
+
+                if (new Date(startDate) > new Date(endDate)) {
+                    alert(`Departure date cannot be before arrival date for ${destinations[i]}`);
+                    isValid = false;
+                    break;
+                }
+
+                dates[destinations[i]] = {
+                    start: startDate,
+                    end: endDate
+                };
+            }
+
+            if (isValid) {
+                localStorage.setItem('destinationDates', JSON.stringify(dates));
+            }
+
+            return isValid;
+        }
+
+        function getDestinations() {
+            const destinations = [];
+            const fromCity = document.getElementById('starting-point').value;
+            if (fromCity) {
+                destinations.push(fromCity);
+            }
+            document.querySelectorAll('select[name^="destination-"]').forEach(select => {
+                if (select.value) {
+                    destinations.push(select.value);
+                }
+            });
+            return destinations;
+        }
+
+        function nextStep(currentSection, nextSection) {
+            if (currentSection === 'destinations-section') {
+                if (!validateDestinations()) {
+                    return;
+                }
+                populateDestinationDates();
+            } else if (currentSection === 'dates-section') {
+                if (!validateDates()) {
+                    return;
+                }
+            } else if (currentSection === 'budget-section') {
+                updateTripSummary();
+            }
+            
+            document.getElementById(currentSection).style.display = 'none';
+            document.getElementById(nextSection).style.display = 'block';
+            updateProgress();
+        }
+
+        function previousStep(currentSection, previousSection) {
+            document.getElementById(currentSection).style.display = 'none';
+            document.getElementById(previousSection).style.display = 'block';
+            updateProgress();
+        }
+
+        function validateDestinations() {
+            const fromSelect = document.getElementById('starting-point');
+            const toSelects = document.querySelectorAll('select[name="destination-1"]');
+            
+            if (!fromSelect.value) {
+                alert('Please select a starting point');
+                return false;
+            }
+
+            let allToSelected = true;
+            toSelects.forEach(select => {
+                if (!select.value) {
+                    allToSelected = false;
+                }
+            });
+
+            if (!allToSelected) {
+                alert('Please select all destinations');
+                return false;
+            }
+
+            return true;
+        }
+
+        function toggleStudentDiscount() {
+            const studentDiscount = document.querySelector('.student-discount');
+            const totalPrice = document.getElementById('total-price');
+            
+            studentDiscount.classList.toggle('active');
+            
+            if (studentDiscount.classList.contains('active')) {
+                // Apply 20% discount
+                totalPrice.textContent = '€4.00';
+                localStorage.setItem('studentDiscount', 'true');
+            } else {
+                // Remove discount
+                totalPrice.textContent = '€5.00';
+                localStorage.setItem('studentDiscount', 'false');
+            }
+            
+            updateProgress();
+            saveTripDetails();
+        }
+
+        function updateTripSummary() {
+            const summaryDiv = document.getElementById('trip-summary');
+            const destinations = getDestinations();
+            const dates = JSON.parse(localStorage.getItem('destinationDates') || '{}');
+            const preferences = JSON.parse(localStorage.getItem('preferences') || '{}');
+            const budget = localStorage.getItem('budget') || '500';
+
+            let summaryHTML = `
+                <div class="summary-section">
+                    <h4>Destinations</h4>
+                    <p>${destinations.join(' → ')}</p>
+                </div>
+                <div class="summary-section">
+                    <h4>Dates</h4>
+                    ${Object.entries(dates).map(([city, dateRange]) => `
+                        <p>${city}: ${dateRange.start} to ${dateRange.end}</p>
+                    `).join('')}
+                </div>
+                <div class="summary-section">
+                    <h4>Preferences</h4>
+                    <p>Interests: ${preferences.interests?.join(', ') || 'None selected'}</p>
+                    <p>Transport: ${preferences.transport?.join(', ') || 'None selected'}</p>
+                    <p>Accommodation: ${preferences.accommodation?.join(', ') || 'None selected'}</p>
+                </div>
+                <div class="summary-section">
+                    <h4>Budget</h4>
+                    <p>€${budget}</p>
+                </div>
+            `;
+
+            summaryDiv.innerHTML = summaryHTML;
+        }
+
+        function updatePriceSummary() {
+            const totalPrice = 5.00; // Base service fee
+            document.getElementById('total-price').textContent = `€${totalPrice}`;
+        }
+    </script>
+</body>
+</html>

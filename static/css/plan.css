@@ -1,0 +1,84 @@
+body {
+    font-family: 'Verdana', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #00473e;
+  }
+  #header {
+    background-color: #00473e;
+    padding: 20px;
+    position: relative;
+    height: 100px;
+}
+
+#logo {
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 120px;
+    height: 60px;
+    border-radius: 10px;
+    object-fit: cover;
+}
+
+#header h1 {
+    color: #ebf4ea;
+    margin: 0;
+    font-size: 36px;
+    text-align: center;
+    line-height: 100px;
+}
+
+    #content {
+        background-image: url('Mappa-del-mondo-Antico.jpg');
+        margin-top: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+h2 {
+    color: rgb(17, 7, 88);
+    margin-top: 20px;
+    margin-bottom: 10px;
+    text-align: center;
+}
+h3 {
+    color: #00473e;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+ul, li{
+    color: #00473e;
+    text-align: center;
+}
+
+image {
+    margin-top:20px;
+    margin-bottom:20px;
+    margin-left: 20px;
+}
+#app {
+    width: 100%; 
+    display: flex;
+    flex-direction: column;
+    align-items: center; 
+  }
+  
+  .trip-block {
+    background-color: #ffffff;
+    width: 90%;
+    max-width: 600px;
+    padding: 30px;
+    margin-top: 30px;
+    margin-bottom: 30px;
+    border-radius: 30px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  }
+
+
+
+
+
